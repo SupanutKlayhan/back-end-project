@@ -34,7 +34,7 @@ describe('Rooms API (e2e)', () => {
   const newRoom = {
     name: 'E2E Test Suite',
     description: 'Created by the e2e test',
-    capacity: 987,
+    capacity: 49,
     price_per_night: 1234.5,
     image_url: '/images/e2e.jpg',
     is_active: true,
@@ -96,7 +96,7 @@ describe('Rooms API (e2e)', () => {
 
   it('lists rooms and includes the created room', async () => {
     const res = await request(app.getHttpServer())
-      .get('/rooms?min_capacity=987&limit=100')
+      .get('/rooms?min_capacity=49&limit=100')
       .set('Authorization', `Bearer ${token}`)
       .expect(200);
 
@@ -113,7 +113,7 @@ describe('Rooms API (e2e)', () => {
       .expect(200);
 
     const pub = await request(app.getHttpServer())
-      .get('/rooms?min_capacity=987&limit=100')
+      .get('/rooms?min_capacity=49&limit=100')
       .expect(200);
     expect(pub.body.data.some((r: { id: number }) => r.id === roomId)).toBe(
       false,
@@ -121,7 +121,7 @@ describe('Rooms API (e2e)', () => {
     await request(app.getHttpServer()).get(`/rooms/${roomId}`).expect(404);
 
     const admin = await request(app.getHttpServer())
-      .get('/rooms/admin/all?is_active=false&min_capacity=987')
+      .get('/rooms/admin/all?is_active=false&min_capacity=49')
       .set('Authorization', `Bearer ${token}`)
       .expect(200);
     expect(admin.body.data.some((r: { id: number }) => r.id === roomId)).toBe(
@@ -151,13 +151,13 @@ describe('Rooms API (e2e)', () => {
     const res = await request(app.getHttpServer())
       .put(`/rooms/${roomId}`)
       .set('Authorization', `Bearer ${token}`)
-      .send({ name: 'E2E Test Suite (updated)', capacity: 988 })
+      .send({ name: 'E2E Test Suite (updated)', capacity: 50 })
       .expect(200);
 
     expect(res.body.message).toBe('Room updated');
     expect(res.body.data.id).toBe(roomId);
     expect(res.body.data.name).toBe('E2E Test Suite (updated)');
-    expect(res.body.data.capacity).toBe(988);
+    expect(res.body.data.capacity).toBe(50);
   });
 
   it('returns 404 when updating a room that does not exist', async () => {

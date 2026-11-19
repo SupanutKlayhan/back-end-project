@@ -42,6 +42,7 @@ import {
   roomImageUploadOptions,
 } from './room-image.upload';
 import { RoomsService } from './rooms.service';
+import {assertRealImage} from './room-image.upload';
 
 const roomSchema = {
   type: 'object',
@@ -399,13 +400,14 @@ export class RoomsController {
   @CommonErrors()
   uploadImage(
     @Param('id', ParseIntPipe) id: number,
-    @UploadedFile() file?: { filename: string },
+    @UploadedFile() file?: { filename: string; path: string; mimetype: string  },
   ) {
     if (!file) {
       throw new BadRequestException(
         'An image file is required (form field "file")',
       );
     }
+    assertRealImage(file);
     return this.roomsService.setImage(
       id,
       `${ROOM_IMAGE_URL_PREFIX}${file.filename}`,
