@@ -40,9 +40,9 @@ import { UpdateRoomDto } from './dto/update-room.dto';
 import {
   ROOM_IMAGE_URL_PREFIX,
   roomImageUploadOptions,
+  assertRealImage,
 } from './room-image.upload';
 import { RoomsService } from './rooms.service';
-import {assertRealImage} from './room-image.upload';
 
 const roomSchema = {
   type: 'object',
