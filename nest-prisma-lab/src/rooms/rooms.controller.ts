@@ -1,11 +1,11 @@
 import {
   applyDecorators,
+  BadRequestException,
   Body,
   Controller,
   DefaultValuePipe,
   Delete,
   Get,
-  Inject,
   Param,
   ParseBoolPipe,
   ParseIntPipe,
@@ -13,12 +13,15 @@ import {
   Post,
   Put,
   Query,
+  UploadedFile,
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
-import { CACHE_MANAGER } from '@nestjs/cache-manager';
+import { FileInterceptor } from '@nestjs/platform-express';
 import {
   ApiBearerAuth,
+  ApiBody,
+  ApiConsumes,
   ApiOperation,
   ApiParam,
   ApiQuery,
@@ -26,14 +29,18 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { Throttle } from '@nestjs/throttler';
-import type { Cache } from 'cache-manager';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { RolesGuard } from '../auth/roles.guard';
 import { Roles } from '../common/decorators/roles.decorator';
 import { Role } from '../common/enums/role.enum';
-import { ToggleCacheInterceptor } from '../common/interceptors/toggle-cache.interceptor';
+import { SuccessMessage } from '../common/decorators/success-message.decorator';
 import { CreateRoomDto } from './dto/create-room.dto';
+import { SearchRoomsQueryDto } from './dto/search-rooms-query.dto';
 import { UpdateRoomDto } from './dto/update-room.dto';
+import {
+  ROOM_IMAGE_URL_PREFIX,
+  roomImageUploadOptions,
+} from './room-image.upload';
 import { RoomsService } from './rooms.service';
 
 const roomSchema = {
@@ -70,7 +77,7 @@ const roomSchema = {
     },
   },
 };
- 
+
 const roomListSchema = {
   type: 'object',
   properties: {
@@ -78,7 +85,11 @@ const roomListSchema = {
     meta: {
       type: 'object',
       properties: {
-        total: { type: 'integer', example: 25, description: 'Rooms matching the filters' },
+        total: {
+          type: 'integer',
+          example: 25,
+          description: 'Rooms matching the filters',
+        },
         page: { type: 'integer', example: 1 },
         limit: { type: 'integer', example: 10 },
         totalPages: { type: 'integer', example: 3 },
@@ -118,26 +129,17 @@ const CommonErrors = () =>
       ),
     ),
   );
- 
+
 @ApiTags('rooms')
-@ApiBearerAuth('access-token')
 @Controller('rooms')
-@UseGuards(JwtAuthGuard, RolesGuard)
 @Throttle({ default: { limit: 100, ttl: 60_000 } })
 export class RoomsController {
-  constructor(
-    private readonly roomsService: RoomsService,
-    @Inject(CACHE_MANAGER) private readonly cache: Cache,
-  ) {}
- 
-  private async invalidate(id?: number) {
-    await this.cache.del('/rooms');
-    if (id !== undefined) {
-      await this.cache.del(`/rooms/${id}`);
-    }
-  }
- 
+  constructor(private readonly roomsService: RoomsService) {}
+
   @Post()
+  @SuccessMessage('Room created')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @ApiBearerAuth('access-token')
   @Roles(Role.ADMIN)
   @ApiOperation({ summary: 'Create a new room (admin only)' })
   @ApiResponse({
@@ -147,41 +149,30 @@ export class RoomsController {
   })
   @ApiResponse(
     errorResponse(
-      400, 
-      'Validation failed', 
-      ['name should not be empty', 'capacity must be an integer number'], 
+      400,
+      'Validation failed',
+      ['name should not be empty', 'capacity must be an integer number'],
       'Bad Request',
     ),
   )
   @ApiResponse(
     errorResponse(
-      403, 
-      'Admin role required', 
-      'Forbidden resource', 
-      'Forbidden'
-    )
+      403,
+      'Admin role required',
+      'Forbidden resource',
+      'Forbidden',
+    ),
   )
   @CommonErrors()
-  async create(@Body() createRoomDto: CreateRoomDto) {
-    const room = await this.roomsService.create(createRoomDto);
-    await this.invalidate();
-    return room;
+  create(@Body() createRoomDto: CreateRoomDto) {
+    return this.roomsService.create(createRoomDto);
   }
- 
-  @Get()
-  @UseInterceptors(ToggleCacheInterceptor)
-  @ApiOperation({
-    summary: 'List rooms',
-    description:
-      'Returns a paginated list of rooms. Results are cached in Redis for 5 minutes.',
-  })
 
-  @ApiQuery({
-    name: 'is_active',
-    required: false,
-    type: Boolean,
-    description: 'Only return rooms that are (true) or are not (false) active',
-    example: true,
+  @Get()
+  @ApiOperation({
+    summary: 'List rooms (public)',
+    description:
+      'Returns a paginated list of active rooms. Results are cached in Redis for 5 minutes and the cache is cleared whenever a room changes.',
   })
   @ApiQuery({
     name: 'min_capacity',
@@ -219,6 +210,46 @@ export class RoomsController {
   )
   @CommonErrors()
   findAll(
+    @Query('min_capacity', new ParseIntPipe({ optional: true }))
+    minCapacity?: number,
+    @Query('page', new DefaultValuePipe(1), ParseIntPipe) page = 1,
+    @Query('limit', new DefaultValuePipe(10), ParseIntPipe) limit = 10,
+  ) {
+    return this.roomsService.findPublic({ minCapacity, page, limit });
+  }
+
+  @Get('admin/all')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @ApiBearerAuth('access-token')
+  @Roles(Role.ADMIN)
+  @ApiOperation({
+    summary: 'List all rooms including inactive ones (admin only)',
+    description: 'Not cached. Use is_active to filter.',
+  })
+  @ApiQuery({
+    name: 'is_active',
+    required: false,
+    type: Boolean,
+    example: false,
+  })
+  @ApiQuery({ name: 'min_capacity', required: false, type: Number, example: 2 })
+  @ApiQuery({ name: 'page', required: false, type: Number, example: 1 })
+  @ApiQuery({ name: 'limit', required: false, type: Number, example: 10 })
+  @ApiResponse({
+    status: 200,
+    description: 'Paginated list of rooms',
+    schema: roomListSchema,
+  })
+  @ApiResponse(
+    errorResponse(
+      403,
+      'Admin role required',
+      'Forbidden resource',
+      'Forbidden',
+    ),
+  )
+  @CommonErrors()
+  findAllAdmin(
     @Query('is_active', new ParseBoolPipe({ optional: true }))
     isActive?: boolean,
     @Query('min_capacity', new ParseIntPipe({ optional: true }))
@@ -228,10 +259,35 @@ export class RoomsController {
   ) {
     return this.roomsService.findAll({ isActive, minCapacity, page, limit });
   }
- 
+
+  @Get('search')
+  @ApiOperation({
+    summary: 'Search available rooms by date range and capacity',
+    description:
+      'Returns only active rooms that fit the guests and have no booking overlapping the dates.',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Paginated available rooms',
+    schema: roomListSchema,
+  })
+  @ApiResponse(
+    errorResponse(
+      400,
+      'Invalid or missing dates',
+      ['check_in must be before check_out'],
+      'Bad Request',
+    ),
+  )
+  search(@Query() query: SearchRoomsQueryDto) {
+    return this.roomsService.search(query);
+  }
+
   @Get(':id')
-  @UseInterceptors(ToggleCacheInterceptor)
-  @ApiOperation({ summary: 'Get a single room by ID' })
+  @ApiOperation({
+    summary: 'Get a single room by ID (public, includes image_url)',
+    description: 'Inactive rooms answer 404. Cached in Redis for 5 minutes.',
+  })
   @ApiParam({ name: 'id', type: Number, description: 'Room ID', example: 1 })
   @ApiResponse({ status: 200, description: 'The room', schema: roomSchema })
   @ApiResponse(
@@ -242,14 +298,18 @@ export class RoomsController {
       'Bad Request',
     ),
   )
-  @ApiResponse(errorResponse(404, 'Room not found', 'Room 99 not found', 'Not Found'))
+  @ApiResponse(
+    errorResponse(404, 'Room not found', 'Room 99 not found', 'Not Found'),
+  )
   @CommonErrors()
   findOne(@Param('id', ParseIntPipe) id: number) {
-    return this.roomsService.findOne(id);
+    return this.roomsService.findPublicOne(id);
   }
 
-  // Lab 10: update
   @Put(':id')
+  @SuccessMessage('Room updated')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @ApiBearerAuth('access-token')
   @Roles(Role.ADMIN)
   @ApiOperation({ summary: 'Update a room (admin only)' })
   @ApiParam({ name: 'id', type: Number, description: 'Room ID', example: 1 })
@@ -266,20 +326,96 @@ export class RoomsController {
       'Bad Request',
     ),
   )
-  @ApiResponse(errorResponse(403, 'Admin role required', 'Forbidden resource', 'Forbidden'))
-  @ApiResponse(errorResponse(404, 'Room not found', 'Room 99 not found', 'Not Found'))
+  @ApiResponse(
+    errorResponse(
+      403,
+      'Admin role required',
+      'Forbidden resource',
+      'Forbidden',
+    ),
+  )
+  @ApiResponse(
+    errorResponse(404, 'Room not found', 'Room 99 not found', 'Not Found'),
+  )
   @CommonErrors()
-  async update(
+  update(
     @Param('id', ParseIntPipe) id: number,
     @Body() updateRoomDto: UpdateRoomDto,
   ) {
-    const room = await this.roomsService.update(id, updateRoomDto);
-    await this.invalidate(id);
-    return room;
+    return this.roomsService.update(id, updateRoomDto);
   }
- 
-  // Lab 10: delete
+
+  @Post(':id/image')
+  @SuccessMessage('Room image uploaded')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @ApiBearerAuth('access-token')
+  @Roles(Role.ADMIN)
+  @UseInterceptors(FileInterceptor('file', roomImageUploadOptions))
+  @ApiOperation({
+    summary: 'Upload an image for a room (admin only)',
+    description: 'multipart/form-data, field "file", JPEG/PNG/WebP, max 2 MB.',
+  })
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    schema: {
+      type: 'object',
+      required: ['file'],
+      properties: { file: { type: 'string', format: 'binary' } },
+    },
+  })
+  @ApiParam({ name: 'id', type: Number, description: 'Room ID', example: 1 })
+  @ApiResponse({
+    status: 201,
+    description: 'The room with its new image_url',
+    schema: roomSchema,
+  })
+  @ApiResponse(
+    errorResponse(
+      400,
+      'No file, or not a JPEG/PNG/WebP image',
+      'Only JPEG, PNG or WebP images are allowed',
+      'Bad Request',
+    ),
+  )
+  @ApiResponse(
+    errorResponse(
+      403,
+      'Admin role required',
+      'Forbidden resource',
+      'Forbidden',
+    ),
+  )
+  @ApiResponse(
+    errorResponse(404, 'Room not found', 'Room 99 not found', 'Not Found'),
+  )
+  @ApiResponse(
+    errorResponse(
+      413,
+      'File larger than 2 MB',
+      'File too large',
+      'Payload Too Large',
+    ),
+  )
+  @CommonErrors()
+  uploadImage(
+    @Param('id', ParseIntPipe) id: number,
+    @UploadedFile() file?: { filename: string },
+  ) {
+    if (!file) {
+      throw new BadRequestException(
+        'An image file is required (form field "file")',
+      );
+    }
+    return this.roomsService.setImage(
+      id,
+      `${ROOM_IMAGE_URL_PREFIX}${file.filename}`,
+    );
+  }
+
   @Delete(':id')
+  @SuccessMessage('Room deleted')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @ApiBearerAuth('access-token')
   @Roles(Role.ADMIN)
   @ApiOperation({ summary: 'Delete a room (admin only)' })
   @ApiParam({ name: 'id', type: Number, description: 'Room ID', example: 1 })
@@ -296,16 +432,26 @@ export class RoomsController {
       'Bad Request',
     ),
   )
-  @ApiResponse(errorResponse(403, 'Admin role required', 'Forbidden resource', 'Forbidden'))
-  @ApiResponse(errorResponse(404, 'Room not found', 'Room 99 not found', 'Not Found'))
+  @ApiResponse(
+    errorResponse(
+      403,
+      'Admin role required',
+      'Forbidden resource',
+      'Forbidden',
+    ),
+  )
+  @ApiResponse(
+    errorResponse(404, 'Room not found', 'Room 99 not found', 'Not Found'),
+  )
   @CommonErrors()
-  async remove(@Param('id', ParseIntPipe) id: number) {
-    const room = await this.roomsService.remove(id);
-    await this.invalidate(id);
-    return room;
+  remove(@Param('id', ParseIntPipe) id: number) {
+    return this.roomsService.remove(id);
   }
- 
+
   @Patch(':id/disable')
+  @SuccessMessage('Room disabled')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @ApiBearerAuth('access-token')
   @Roles(Role.ADMIN)
   @ApiOperation({ summary: 'Disable a room (admin only)' })
   @ApiParam({ name: 'id', type: Number, description: 'Room ID', example: 1 })
@@ -328,16 +474,26 @@ export class RoomsController {
       'Bad Request',
     ),
   )
-  @ApiResponse(errorResponse(403, 'Admin role required', 'Forbidden resource', 'Forbidden'))
-  @ApiResponse(errorResponse(404, 'Room not found', 'Room 99 not found', 'Not Found'))
+  @ApiResponse(
+    errorResponse(
+      403,
+      'Admin role required',
+      'Forbidden resource',
+      'Forbidden',
+    ),
+  )
+  @ApiResponse(
+    errorResponse(404, 'Room not found', 'Room 99 not found', 'Not Found'),
+  )
   @CommonErrors()
-  async disable(@Param('id', ParseIntPipe) id: number) {
-    const room = await this.roomsService.disable(id);
-    await this.invalidate(id);
-    return room;
+  disable(@Param('id', ParseIntPipe) id: number) {
+    return this.roomsService.disable(id);
   }
- 
+
   @Patch(':id/enable')
+  @SuccessMessage('Room enabled')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @ApiBearerAuth('access-token')
   @Roles(Role.ADMIN)
   @ApiOperation({ summary: 'Enable a room (admin only)' })
   @ApiParam({ name: 'id', type: Number, description: 'Room ID', example: 1 })
@@ -354,12 +510,19 @@ export class RoomsController {
       'Bad Request',
     ),
   )
-  @ApiResponse(errorResponse(403, 'Admin role required', 'Forbidden resource', 'Forbidden'))
-  @ApiResponse(errorResponse(404, 'Room not found', 'Room 99 not found', 'Not Found'))
+  @ApiResponse(
+    errorResponse(
+      403,
+      'Admin role required',
+      'Forbidden resource',
+      'Forbidden',
+    ),
+  )
+  @ApiResponse(
+    errorResponse(404, 'Room not found', 'Room 99 not found', 'Not Found'),
+  )
   @CommonErrors()
-  async enable(@Param('id', ParseIntPipe) id: number) {
-    const room = await this.roomsService.enable(id);
-    await this.invalidate(id);
-    return room;
+  enable(@Param('id', ParseIntPipe) id: number) {
+    return this.roomsService.enable(id);
   }
 }

@@ -1,0 +1,3550 @@
+{
+    "openapi": "3.0.0",
+    "paths": {
+        "/auth/register": {
+            "post": {
+                "operationId": "AuthController_register",
+                "parameters": [],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/RegisterDto"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Account created (no password in the response)",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Account created"
+                                        },
+                                        "data": {
+                                            "$ref": "#/components/schemas/UserProfile"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Validation failed or invalid input",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                },
+                                "example": {
+                                    "success": false,
+                                    "statusCode": 400,
+                                    "message": "Bad Request",
+                                    "path": "/example",
+                                    "timestamp": "2026-12-24T14:00:00.000Z"
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict with the current state",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                },
+                                "example": {
+                                    "success": false,
+                                    "statusCode": 409,
+                                    "message": "Conflict",
+                                    "path": "/example",
+                                    "timestamp": "2026-12-24T14:00:00.000Z"
+                                }
+                            }
+                        }
+                    },
+                    "429": {
+                        "description": "Rate limit exceeded",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                },
+                                "example": {
+                                    "success": false,
+                                    "statusCode": 429,
+                                    "message": "Too Many Requests",
+                                    "path": "/example",
+                                    "timestamp": "2026-12-24T14:00:00.000Z"
+                                }
+                            }
+                        }
+                    }
+                },
+                "summary": "Sign up (always creates a regular USER)",
+                "tags": [
+                    "auth"
+                ]
+            }
+        },
+        "/auth/login": {
+            "post": {
+                "operationId": "AuthController_login",
+                "parameters": [],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/LoginDto"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Access token",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Login successful"
+                                        },
+                                        "data": {
+                                            "type": "object",
+                                            "properties": {
+                                                "access_token": {
+                                                    "type": "string",
+                                                    "example": "eyJhbGciOi..."
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Validation failed or invalid input",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                },
+                                "example": {
+                                    "success": false,
+                                    "statusCode": 400,
+                                    "message": "Bad Request",
+                                    "path": "/example",
+                                    "timestamp": "2026-12-24T14:00:00.000Z"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Missing, invalid or revoked JWT",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                },
+                                "example": {
+                                    "success": false,
+                                    "statusCode": 401,
+                                    "message": "Unauthorized",
+                                    "path": "/example",
+                                    "timestamp": "2026-12-24T14:00:00.000Z"
+                                }
+                            }
+                        }
+                    },
+                    "429": {
+                        "description": "Rate limit exceeded",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                },
+                                "example": {
+                                    "success": false,
+                                    "statusCode": 429,
+                                    "message": "Too Many Requests",
+                                    "path": "/example",
+                                    "timestamp": "2026-12-24T14:00:00.000Z"
+                                }
+                            }
+                        }
+                    }
+                },
+                "summary": "Log in and receive a JWT (valid for 1 hour)",
+                "tags": [
+                    "auth"
+                ]
+            }
+        },
+        "/auth/logout": {
+            "post": {
+                "operationId": "AuthController_logout",
+                "parameters": [],
+                "responses": {
+                    "200": {
+                        "description": "Logged out",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Logged out"
+                                        },
+                                        "data": {
+                                            "nullable": true,
+                                            "example": null
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Missing, invalid or revoked JWT",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                },
+                                "example": {
+                                    "success": false,
+                                    "statusCode": 401,
+                                    "message": "Unauthorized",
+                                    "path": "/example",
+                                    "timestamp": "2026-12-24T14:00:00.000Z"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "access-token": []
+                    }
+                ],
+                "summary": "Log out: the current token stops working immediately",
+                "tags": [
+                    "auth"
+                ]
+            }
+        },
+        "/users/me": {
+            "get": {
+                "operationId": "UsersController_getProfile",
+                "parameters": [],
+                "responses": {
+                    "200": {
+                        "description": "The logged-in user (no password)",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Request successful"
+                                        },
+                                        "data": {
+                                            "$ref": "#/components/schemas/UserProfile"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Missing, invalid or revoked JWT",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                },
+                                "example": {
+                                    "success": false,
+                                    "statusCode": 401,
+                                    "message": "Unauthorized",
+                                    "path": "/example",
+                                    "timestamp": "2026-12-24T14:00:00.000Z"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Resource not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                },
+                                "example": {
+                                    "success": false,
+                                    "statusCode": 404,
+                                    "message": "Not Found",
+                                    "path": "/example",
+                                    "timestamp": "2026-12-24T14:00:00.000Z"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "access-token": []
+                    }
+                ],
+                "summary": "View my profile",
+                "tags": [
+                    "users"
+                ]
+            },
+            "patch": {
+                "operationId": "UsersController_updateProfile",
+                "parameters": [],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/UpdateProfileDto"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "The updated profile",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Profile updated"
+                                        },
+                                        "data": {
+                                            "$ref": "#/components/schemas/UserProfile"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Validation failed or invalid input",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                },
+                                "example": {
+                                    "success": false,
+                                    "statusCode": 400,
+                                    "message": "Bad Request",
+                                    "path": "/example",
+                                    "timestamp": "2026-12-24T14:00:00.000Z"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Missing, invalid or revoked JWT",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                },
+                                "example": {
+                                    "success": false,
+                                    "statusCode": 401,
+                                    "message": "Unauthorized",
+                                    "path": "/example",
+                                    "timestamp": "2026-12-24T14:00:00.000Z"
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict with the current state",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                },
+                                "example": {
+                                    "success": false,
+                                    "statusCode": 409,
+                                    "message": "Conflict",
+                                    "path": "/example",
+                                    "timestamp": "2026-12-24T14:00:00.000Z"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "access-token": []
+                    }
+                ],
+                "summary": "Update my name, e-mail or password",
+                "tags": [
+                    "users"
+                ]
+            }
+        },
+        "/rooms": {
+            "post": {
+                "operationId": "RoomsController_create",
+                "parameters": [],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CreateRoomDto"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Room created",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Room created"
+                                        },
+                                        "data": {
+                                            "type": "object",
+                                            "properties": {
+                                                "id": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                },
+                                                "name": {
+                                                    "type": "string",
+                                                    "example": "Deluxe Ocean View"
+                                                },
+                                                "description": {
+                                                    "type": "string",
+                                                    "nullable": true,
+                                                    "example": "King bed, private balcony, sea view"
+                                                },
+                                                "capacity": {
+                                                    "type": "integer",
+                                                    "example": 2
+                                                },
+                                                "price_per_night": {
+                                                    "type": "string",
+                                                    "example": "1500.50",
+                                                    "description": "Decimal value, serialized as a string"
+                                                },
+                                                "image_url": {
+                                                    "type": "string",
+                                                    "nullable": true,
+                                                    "example": "\"/images/room101.jpg\""
+                                                },
+                                                "is_active": {
+                                                    "type": "boolean",
+                                                    "example": true
+                                                },
+                                                "created_at": {
+                                                    "type": "string",
+                                                    "format": "date-time",
+                                                    "example": "2026-10-26T01:00:00.000Z"
+                                                },
+                                                "updated_at": {
+                                                    "type": "string",
+                                                    "format": "date-time",
+                                                    "example": "2026-10-26T01:00:00.000Z"
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Validation failed",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                },
+                                "example": {
+                                    "success": false,
+                                    "statusCode": 400,
+                                    "message": "Validation failed",
+                                    "errors": [
+                                        "name should not be empty",
+                                        "capacity must be an integer number"
+                                    ],
+                                    "path": "/example",
+                                    "timestamp": "2026-12-24T14:00:00.000Z"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Missing or invalid JWT",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                },
+                                "example": {
+                                    "success": false,
+                                    "statusCode": 401,
+                                    "message": "Unauthorized",
+                                    "path": "/example",
+                                    "timestamp": "2026-12-24T14:00:00.000Z"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Admin role required",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                },
+                                "example": {
+                                    "success": false,
+                                    "statusCode": 403,
+                                    "message": "Forbidden resource",
+                                    "path": "/example",
+                                    "timestamp": "2026-12-24T14:00:00.000Z"
+                                }
+                            }
+                        }
+                    },
+                    "429": {
+                        "description": "Rate limit exceeded (100 requests per minute)",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                },
+                                "example": {
+                                    "success": false,
+                                    "statusCode": 429,
+                                    "message": "ThrottlerException: Too Many Requests",
+                                    "path": "/example",
+                                    "timestamp": "2026-12-24T14:00:00.000Z"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "access-token": []
+                    }
+                ],
+                "summary": "Create a new room (admin only)",
+                "tags": [
+                    "rooms"
+                ]
+            },
+            "get": {
+                "description": "Returns a paginated list of active rooms. Results are cached in Redis for 5 minutes and the cache is cleared whenever a room changes.",
+                "operationId": "RoomsController_findAll",
+                "parameters": [
+                    {
+                        "name": "min_capacity",
+                        "required": false,
+                        "in": "query",
+                        "description": "Only return rooms that fit at least this many guests",
+                        "schema": {
+                            "example": 2,
+                            "type": "number"
+                        }
+                    },
+                    {
+                        "name": "limit",
+                        "required": false,
+                        "in": "query",
+                        "description": "Rooms per page, 1-100 (default 10)",
+                        "schema": {
+                            "example": 10,
+                            "type": "number"
+                        }
+                    },
+                    {
+                        "name": "page",
+                        "required": false,
+                        "in": "query",
+                        "description": "Page number, starting at 1 (default 1)",
+                        "schema": {
+                            "example": 1,
+                            "type": "number"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Paginated list of rooms",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Request successful"
+                                        },
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "id": {
+                                                        "type": "integer",
+                                                        "example": 1
+                                                    },
+                                                    "name": {
+                                                        "type": "string",
+                                                        "example": "Deluxe Ocean View"
+                                                    },
+                                                    "description": {
+                                                        "type": "string",
+                                                        "nullable": true,
+                                                        "example": "King bed, private balcony, sea view"
+                                                    },
+                                                    "capacity": {
+                                                        "type": "integer",
+                                                        "example": 2
+                                                    },
+                                                    "price_per_night": {
+                                                        "type": "string",
+                                                        "example": "1500.50",
+                                                        "description": "Decimal value, serialized as a string"
+                                                    },
+                                                    "image_url": {
+                                                        "type": "string",
+                                                        "nullable": true,
+                                                        "example": "\"/images/room101.jpg\""
+                                                    },
+                                                    "is_active": {
+                                                        "type": "boolean",
+                                                        "example": true
+                                                    },
+                                                    "created_at": {
+                                                        "type": "string",
+                                                        "format": "date-time",
+                                                        "example": "2026-10-26T01:00:00.000Z"
+                                                    },
+                                                    "updated_at": {
+                                                        "type": "string",
+                                                        "format": "date-time",
+                                                        "example": "2026-10-26T01:00:00.000Z"
+                                                    }
+                                                }
+                                            }
+                                        },
+                                        "meta": {
+                                            "type": "object",
+                                            "properties": {
+                                                "total": {
+                                                    "type": "integer",
+                                                    "example": 25,
+                                                    "description": "Rooms matching the filters"
+                                                },
+                                                "page": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                },
+                                                "limit": {
+                                                    "type": "integer",
+                                                    "example": 10
+                                                },
+                                                "totalPages": {
+                                                    "type": "integer",
+                                                    "example": 3
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "A query parameter has an invalid value",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                },
+                                "example": {
+                                    "success": false,
+                                    "statusCode": 400,
+                                    "message": "Validation failed (numeric string is expected)",
+                                    "path": "/example",
+                                    "timestamp": "2026-12-24T14:00:00.000Z"
+                                }
+                            }
+                        }
+                    },
+                    "429": {
+                        "description": "Rate limit exceeded (100 requests per minute)",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                },
+                                "example": {
+                                    "success": false,
+                                    "statusCode": 429,
+                                    "message": "ThrottlerException: Too Many Requests",
+                                    "path": "/example",
+                                    "timestamp": "2026-12-24T14:00:00.000Z"
+                                }
+                            }
+                        }
+                    }
+                },
+                "summary": "List rooms (public)",
+                "tags": [
+                    "rooms"
+                ]
+            }
+        },
+        "/rooms/admin/all": {
+            "get": {
+                "description": "Not cached. Use is_active to filter.",
+                "operationId": "RoomsController_findAllAdmin",
+                "parameters": [
+                    {
+                        "name": "is_active",
+                        "required": false,
+                        "in": "query",
+                        "schema": {
+                            "example": false,
+                            "type": "boolean"
+                        }
+                    },
+                    {
+                        "name": "min_capacity",
+                        "required": false,
+                        "in": "query",
+                        "schema": {
+                            "example": 2,
+                            "type": "number"
+                        }
+                    },
+                    {
+                        "name": "limit",
+                        "required": false,
+                        "in": "query",
+                        "schema": {
+                            "example": 10,
+                            "type": "number"
+                        }
+                    },
+                    {
+                        "name": "page",
+                        "required": false,
+                        "in": "query",
+                        "schema": {
+                            "example": 1,
+                            "type": "number"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Paginated list of rooms",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Request successful"
+                                        },
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "id": {
+                                                        "type": "integer",
+                                                        "example": 1
+                                                    },
+                                                    "name": {
+                                                        "type": "string",
+                                                        "example": "Deluxe Ocean View"
+                                                    },
+                                                    "description": {
+                                                        "type": "string",
+                                                        "nullable": true,
+                                                        "example": "King bed, private balcony, sea view"
+                                                    },
+                                                    "capacity": {
+                                                        "type": "integer",
+                                                        "example": 2
+                                                    },
+                                                    "price_per_night": {
+                                                        "type": "string",
+                                                        "example": "1500.50",
+                                                        "description": "Decimal value, serialized as a string"
+                                                    },
+                                                    "image_url": {
+                                                        "type": "string",
+                                                        "nullable": true,
+                                                        "example": "\"/images/room101.jpg\""
+                                                    },
+                                                    "is_active": {
+                                                        "type": "boolean",
+                                                        "example": true
+                                                    },
+                                                    "created_at": {
+                                                        "type": "string",
+                                                        "format": "date-time",
+                                                        "example": "2026-10-26T01:00:00.000Z"
+                                                    },
+                                                    "updated_at": {
+                                                        "type": "string",
+                                                        "format": "date-time",
+                                                        "example": "2026-10-26T01:00:00.000Z"
+                                                    }
+                                                }
+                                            }
+                                        },
+                                        "meta": {
+                                            "type": "object",
+                                            "properties": {
+                                                "total": {
+                                                    "type": "integer",
+                                                    "example": 25,
+                                                    "description": "Rooms matching the filters"
+                                                },
+                                                "page": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                },
+                                                "limit": {
+                                                    "type": "integer",
+                                                    "example": 10
+                                                },
+                                                "totalPages": {
+                                                    "type": "integer",
+                                                    "example": 3
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Missing or invalid JWT",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                },
+                                "example": {
+                                    "success": false,
+                                    "statusCode": 401,
+                                    "message": "Unauthorized",
+                                    "path": "/example",
+                                    "timestamp": "2026-12-24T14:00:00.000Z"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Admin role required",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                },
+                                "example": {
+                                    "success": false,
+                                    "statusCode": 403,
+                                    "message": "Forbidden resource",
+                                    "path": "/example",
+                                    "timestamp": "2026-12-24T14:00:00.000Z"
+                                }
+                            }
+                        }
+                    },
+                    "429": {
+                        "description": "Rate limit exceeded (100 requests per minute)",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                },
+                                "example": {
+                                    "success": false,
+                                    "statusCode": 429,
+                                    "message": "ThrottlerException: Too Many Requests",
+                                    "path": "/example",
+                                    "timestamp": "2026-12-24T14:00:00.000Z"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "access-token": []
+                    }
+                ],
+                "summary": "List all rooms including inactive ones (admin only)",
+                "tags": [
+                    "rooms"
+                ]
+            }
+        },
+        "/rooms/search": {
+            "get": {
+                "description": "Returns only active rooms that fit the guests and have no booking overlapping the dates.",
+                "operationId": "RoomsController_search",
+                "parameters": [
+                    {
+                        "name": "page",
+                        "required": false,
+                        "in": "query",
+                        "schema": {
+                            "minimum": 1,
+                            "default": 1,
+                            "example": 1,
+                            "type": "number"
+                        }
+                    },
+                    {
+                        "name": "limit",
+                        "required": false,
+                        "in": "query",
+                        "schema": {
+                            "minimum": 1,
+                            "maximum": 100,
+                            "default": 10,
+                            "example": 10,
+                            "type": "number"
+                        }
+                    },
+                    {
+                        "name": "check_in",
+                        "required": true,
+                        "in": "query",
+                        "schema": {
+                            "example": "2026-12-24T14:00:00.000Z",
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "check_out",
+                        "required": true,
+                        "in": "query",
+                        "schema": {
+                            "example": "2026-12-26T11:00:00.000Z",
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "capacity",
+                        "required": false,
+                        "in": "query",
+                        "description": "Minimum number of guests the room must fit",
+                        "schema": {
+                            "example": 2,
+                            "type": "number"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Paginated available rooms",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Request successful"
+                                        },
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "id": {
+                                                        "type": "integer",
+                                                        "example": 1
+                                                    },
+                                                    "name": {
+                                                        "type": "string",
+                                                        "example": "Deluxe Ocean View"
+                                                    },
+                                                    "description": {
+                                                        "type": "string",
+                                                        "nullable": true,
+                                                        "example": "King bed, private balcony, sea view"
+                                                    },
+                                                    "capacity": {
+                                                        "type": "integer",
+                                                        "example": 2
+                                                    },
+                                                    "price_per_night": {
+                                                        "type": "string",
+                                                        "example": "1500.50",
+                                                        "description": "Decimal value, serialized as a string"
+                                                    },
+                                                    "image_url": {
+                                                        "type": "string",
+                                                        "nullable": true,
+                                                        "example": "\"/images/room101.jpg\""
+                                                    },
+                                                    "is_active": {
+                                                        "type": "boolean",
+                                                        "example": true
+                                                    },
+                                                    "created_at": {
+                                                        "type": "string",
+                                                        "format": "date-time",
+                                                        "example": "2026-10-26T01:00:00.000Z"
+                                                    },
+                                                    "updated_at": {
+                                                        "type": "string",
+                                                        "format": "date-time",
+                                                        "example": "2026-10-26T01:00:00.000Z"
+                                                    }
+                                                }
+                                            }
+                                        },
+                                        "meta": {
+                                            "type": "object",
+                                            "properties": {
+                                                "total": {
+                                                    "type": "integer",
+                                                    "example": 25,
+                                                    "description": "Rooms matching the filters"
+                                                },
+                                                "page": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                },
+                                                "limit": {
+                                                    "type": "integer",
+                                                    "example": 10
+                                                },
+                                                "totalPages": {
+                                                    "type": "integer",
+                                                    "example": 3
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid or missing dates",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                },
+                                "example": {
+                                    "success": false,
+                                    "statusCode": 400,
+                                    "message": "Validation failed",
+                                    "errors": [
+                                        "check_in must be before check_out"
+                                    ],
+                                    "path": "/example",
+                                    "timestamp": "2026-12-24T14:00:00.000Z"
+                                }
+                            }
+                        }
+                    }
+                },
+                "summary": "Search available rooms by date range and capacity",
+                "tags": [
+                    "rooms"
+                ]
+            }
+        },
+        "/rooms/{id}": {
+            "get": {
+                "description": "Inactive rooms answer 404. Cached in Redis for 5 minutes.",
+                "operationId": "RoomsController_findOne",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "required": true,
+                        "in": "path",
+                        "description": "Room ID",
+                        "schema": {
+                            "example": 1,
+                            "type": "number"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The room",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Request successful"
+                                        },
+                                        "data": {
+                                            "type": "object",
+                                            "properties": {
+                                                "id": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                },
+                                                "name": {
+                                                    "type": "string",
+                                                    "example": "Deluxe Ocean View"
+                                                },
+                                                "description": {
+                                                    "type": "string",
+                                                    "nullable": true,
+                                                    "example": "King bed, private balcony, sea view"
+                                                },
+                                                "capacity": {
+                                                    "type": "integer",
+                                                    "example": 2
+                                                },
+                                                "price_per_night": {
+                                                    "type": "string",
+                                                    "example": "1500.50",
+                                                    "description": "Decimal value, serialized as a string"
+                                                },
+                                                "image_url": {
+                                                    "type": "string",
+                                                    "nullable": true,
+                                                    "example": "\"/images/room101.jpg\""
+                                                },
+                                                "is_active": {
+                                                    "type": "boolean",
+                                                    "example": true
+                                                },
+                                                "created_at": {
+                                                    "type": "string",
+                                                    "format": "date-time",
+                                                    "example": "2026-10-26T01:00:00.000Z"
+                                                },
+                                                "updated_at": {
+                                                    "type": "string",
+                                                    "format": "date-time",
+                                                    "example": "2026-10-26T01:00:00.000Z"
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "ID is not a number",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                },
+                                "example": {
+                                    "success": false,
+                                    "statusCode": 400,
+                                    "message": "Validation failed (numeric string is expected)",
+                                    "path": "/example",
+                                    "timestamp": "2026-12-24T14:00:00.000Z"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Room not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                },
+                                "example": {
+                                    "success": false,
+                                    "statusCode": 404,
+                                    "message": "Room 99 not found",
+                                    "path": "/example",
+                                    "timestamp": "2026-12-24T14:00:00.000Z"
+                                }
+                            }
+                        }
+                    },
+                    "429": {
+                        "description": "Rate limit exceeded (100 requests per minute)",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                },
+                                "example": {
+                                    "success": false,
+                                    "statusCode": 429,
+                                    "message": "ThrottlerException: Too Many Requests",
+                                    "path": "/example",
+                                    "timestamp": "2026-12-24T14:00:00.000Z"
+                                }
+                            }
+                        }
+                    }
+                },
+                "summary": "Get a single room by ID (public, includes image_url)",
+                "tags": [
+                    "rooms"
+                ]
+            },
+            "put": {
+                "operationId": "RoomsController_update",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "required": true,
+                        "in": "path",
+                        "description": "Room ID",
+                        "schema": {
+                            "example": 1,
+                            "type": "number"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/UpdateRoomDto"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "The updated room",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Room updated"
+                                        },
+                                        "data": {
+                                            "type": "object",
+                                            "properties": {
+                                                "id": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                },
+                                                "name": {
+                                                    "type": "string",
+                                                    "example": "Deluxe Ocean View"
+                                                },
+                                                "description": {
+                                                    "type": "string",
+                                                    "nullable": true,
+                                                    "example": "King bed, private balcony, sea view"
+                                                },
+                                                "capacity": {
+                                                    "type": "integer",
+                                                    "example": 2
+                                                },
+                                                "price_per_night": {
+                                                    "type": "string",
+                                                    "example": "1500.50",
+                                                    "description": "Decimal value, serialized as a string"
+                                                },
+                                                "image_url": {
+                                                    "type": "string",
+                                                    "nullable": true,
+                                                    "example": "\"/images/room101.jpg\""
+                                                },
+                                                "is_active": {
+                                                    "type": "boolean",
+                                                    "example": true
+                                                },
+                                                "created_at": {
+                                                    "type": "string",
+                                                    "format": "date-time",
+                                                    "example": "2026-10-26T01:00:00.000Z"
+                                                },
+                                                "updated_at": {
+                                                    "type": "string",
+                                                    "format": "date-time",
+                                                    "example": "2026-10-26T01:00:00.000Z"
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid ID or body",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                },
+                                "example": {
+                                    "success": false,
+                                    "statusCode": 400,
+                                    "message": "Validation failed (numeric string is expected)",
+                                    "path": "/example",
+                                    "timestamp": "2026-12-24T14:00:00.000Z"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Missing or invalid JWT",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                },
+                                "example": {
+                                    "success": false,
+                                    "statusCode": 401,
+                                    "message": "Unauthorized",
+                                    "path": "/example",
+                                    "timestamp": "2026-12-24T14:00:00.000Z"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Admin role required",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                },
+                                "example": {
+                                    "success": false,
+                                    "statusCode": 403,
+                                    "message": "Forbidden resource",
+                                    "path": "/example",
+                                    "timestamp": "2026-12-24T14:00:00.000Z"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Room not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                },
+                                "example": {
+                                    "success": false,
+                                    "statusCode": 404,
+                                    "message": "Room 99 not found",
+                                    "path": "/example",
+                                    "timestamp": "2026-12-24T14:00:00.000Z"
+                                }
+                            }
+                        }
+                    },
+                    "429": {
+                        "description": "Rate limit exceeded (100 requests per minute)",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                },
+                                "example": {
+                                    "success": false,
+                                    "statusCode": 429,
+                                    "message": "ThrottlerException: Too Many Requests",
+                                    "path": "/example",
+                                    "timestamp": "2026-12-24T14:00:00.000Z"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "access-token": []
+                    }
+                ],
+                "summary": "Update a room (admin only)",
+                "tags": [
+                    "rooms"
+                ]
+            },
+            "delete": {
+                "operationId": "RoomsController_remove",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "required": true,
+                        "in": "path",
+                        "description": "Room ID",
+                        "schema": {
+                            "example": 1,
+                            "type": "number"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The deleted room",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Room deleted"
+                                        },
+                                        "data": {
+                                            "type": "object",
+                                            "properties": {
+                                                "id": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                },
+                                                "name": {
+                                                    "type": "string",
+                                                    "example": "Deluxe Ocean View"
+                                                },
+                                                "description": {
+                                                    "type": "string",
+                                                    "nullable": true,
+                                                    "example": "King bed, private balcony, sea view"
+                                                },
+                                                "capacity": {
+                                                    "type": "integer",
+                                                    "example": 2
+                                                },
+                                                "price_per_night": {
+                                                    "type": "string",
+                                                    "example": "1500.50",
+                                                    "description": "Decimal value, serialized as a string"
+                                                },
+                                                "image_url": {
+                                                    "type": "string",
+                                                    "nullable": true,
+                                                    "example": "\"/images/room101.jpg\""
+                                                },
+                                                "is_active": {
+                                                    "type": "boolean",
+                                                    "example": true
+                                                },
+                                                "created_at": {
+                                                    "type": "string",
+                                                    "format": "date-time",
+                                                    "example": "2026-10-26T01:00:00.000Z"
+                                                },
+                                                "updated_at": {
+                                                    "type": "string",
+                                                    "format": "date-time",
+                                                    "example": "2026-10-26T01:00:00.000Z"
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "ID is not a number",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                },
+                                "example": {
+                                    "success": false,
+                                    "statusCode": 400,
+                                    "message": "Validation failed (numeric string is expected)",
+                                    "path": "/example",
+                                    "timestamp": "2026-12-24T14:00:00.000Z"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Missing or invalid JWT",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                },
+                                "example": {
+                                    "success": false,
+                                    "statusCode": 401,
+                                    "message": "Unauthorized",
+                                    "path": "/example",
+                                    "timestamp": "2026-12-24T14:00:00.000Z"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Admin role required",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                },
+                                "example": {
+                                    "success": false,
+                                    "statusCode": 403,
+                                    "message": "Forbidden resource",
+                                    "path": "/example",
+                                    "timestamp": "2026-12-24T14:00:00.000Z"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Room not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                },
+                                "example": {
+                                    "success": false,
+                                    "statusCode": 404,
+                                    "message": "Room 99 not found",
+                                    "path": "/example",
+                                    "timestamp": "2026-12-24T14:00:00.000Z"
+                                }
+                            }
+                        }
+                    },
+                    "429": {
+                        "description": "Rate limit exceeded (100 requests per minute)",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                },
+                                "example": {
+                                    "success": false,
+                                    "statusCode": 429,
+                                    "message": "ThrottlerException: Too Many Requests",
+                                    "path": "/example",
+                                    "timestamp": "2026-12-24T14:00:00.000Z"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "access-token": []
+                    }
+                ],
+                "summary": "Delete a room (admin only)",
+                "tags": [
+                    "rooms"
+                ]
+            }
+        },
+        "/rooms/{id}/image": {
+            "post": {
+                "description": "multipart/form-data, field \"file\", JPEG/PNG/WebP, max 2 MB.",
+                "operationId": "RoomsController_uploadImage",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "required": true,
+                        "in": "path",
+                        "description": "Room ID",
+                        "schema": {
+                            "example": 1,
+                            "type": "number"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "type": "object",
+                                "required": [
+                                    "file"
+                                ],
+                                "properties": {
+                                    "file": {
+                                        "type": "string",
+                                        "format": "binary"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "The room with its new image_url",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Room image uploaded"
+                                        },
+                                        "data": {
+                                            "type": "object",
+                                            "properties": {
+                                                "id": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                },
+                                                "name": {
+                                                    "type": "string",
+                                                    "example": "Deluxe Ocean View"
+                                                },
+                                                "description": {
+                                                    "type": "string",
+                                                    "nullable": true,
+                                                    "example": "King bed, private balcony, sea view"
+                                                },
+                                                "capacity": {
+                                                    "type": "integer",
+                                                    "example": 2
+                                                },
+                                                "price_per_night": {
+                                                    "type": "string",
+                                                    "example": "1500.50",
+                                                    "description": "Decimal value, serialized as a string"
+                                                },
+                                                "image_url": {
+                                                    "type": "string",
+                                                    "nullable": true,
+                                                    "example": "\"/images/room101.jpg\""
+                                                },
+                                                "is_active": {
+                                                    "type": "boolean",
+                                                    "example": true
+                                                },
+                                                "created_at": {
+                                                    "type": "string",
+                                                    "format": "date-time",
+                                                    "example": "2026-10-26T01:00:00.000Z"
+                                                },
+                                                "updated_at": {
+                                                    "type": "string",
+                                                    "format": "date-time",
+                                                    "example": "2026-10-26T01:00:00.000Z"
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "No file, or not a JPEG/PNG/WebP image",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                },
+                                "example": {
+                                    "success": false,
+                                    "statusCode": 400,
+                                    "message": "Only JPEG, PNG or WebP images are allowed",
+                                    "path": "/example",
+                                    "timestamp": "2026-12-24T14:00:00.000Z"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Missing or invalid JWT",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                },
+                                "example": {
+                                    "success": false,
+                                    "statusCode": 401,
+                                    "message": "Unauthorized",
+                                    "path": "/example",
+                                    "timestamp": "2026-12-24T14:00:00.000Z"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Admin role required",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                },
+                                "example": {
+                                    "success": false,
+                                    "statusCode": 403,
+                                    "message": "Forbidden resource",
+                                    "path": "/example",
+                                    "timestamp": "2026-12-24T14:00:00.000Z"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Room not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                },
+                                "example": {
+                                    "success": false,
+                                    "statusCode": 404,
+                                    "message": "Room 99 not found",
+                                    "path": "/example",
+                                    "timestamp": "2026-12-24T14:00:00.000Z"
+                                }
+                            }
+                        }
+                    },
+                    "413": {
+                        "description": "File larger than 2 MB",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                },
+                                "example": {
+                                    "success": false,
+                                    "statusCode": 413,
+                                    "message": "File too large",
+                                    "path": "/example",
+                                    "timestamp": "2026-12-24T14:00:00.000Z"
+                                }
+                            }
+                        }
+                    },
+                    "429": {
+                        "description": "Rate limit exceeded (100 requests per minute)",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                },
+                                "example": {
+                                    "success": false,
+                                    "statusCode": 429,
+                                    "message": "ThrottlerException: Too Many Requests",
+                                    "path": "/example",
+                                    "timestamp": "2026-12-24T14:00:00.000Z"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "access-token": []
+                    }
+                ],
+                "summary": "Upload an image for a room (admin only)",
+                "tags": [
+                    "rooms"
+                ]
+            }
+        },
+        "/rooms/{id}/disable": {
+            "patch": {
+                "operationId": "RoomsController_disable",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "required": true,
+                        "in": "path",
+                        "description": "Room ID",
+                        "schema": {
+                            "example": 1,
+                            "type": "number"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Room disabled (is_active is now false)",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Room disabled"
+                                        },
+                                        "data": {
+                                            "type": "object",
+                                            "properties": {
+                                                "id": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                },
+                                                "name": {
+                                                    "type": "string",
+                                                    "example": "Deluxe Ocean View"
+                                                },
+                                                "description": {
+                                                    "type": "string",
+                                                    "nullable": true,
+                                                    "example": "King bed, private balcony, sea view"
+                                                },
+                                                "capacity": {
+                                                    "type": "integer",
+                                                    "example": 2
+                                                },
+                                                "price_per_night": {
+                                                    "type": "string",
+                                                    "example": "1500.50",
+                                                    "description": "Decimal value, serialized as a string"
+                                                },
+                                                "image_url": {
+                                                    "type": "string",
+                                                    "nullable": true,
+                                                    "example": "\"/images/room101.jpg\""
+                                                },
+                                                "is_active": {
+                                                    "type": "boolean",
+                                                    "example": false
+                                                },
+                                                "created_at": {
+                                                    "type": "string",
+                                                    "format": "date-time",
+                                                    "example": "2026-10-26T01:00:00.000Z"
+                                                },
+                                                "updated_at": {
+                                                    "type": "string",
+                                                    "format": "date-time",
+                                                    "example": "2026-10-26T01:00:00.000Z"
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "ID is not a number",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                },
+                                "example": {
+                                    "success": false,
+                                    "statusCode": 400,
+                                    "message": "Validation failed (numeric string is expected)",
+                                    "path": "/example",
+                                    "timestamp": "2026-12-24T14:00:00.000Z"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Missing or invalid JWT",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                },
+                                "example": {
+                                    "success": false,
+                                    "statusCode": 401,
+                                    "message": "Unauthorized",
+                                    "path": "/example",
+                                    "timestamp": "2026-12-24T14:00:00.000Z"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Admin role required",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                },
+                                "example": {
+                                    "success": false,
+                                    "statusCode": 403,
+                                    "message": "Forbidden resource",
+                                    "path": "/example",
+                                    "timestamp": "2026-12-24T14:00:00.000Z"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Room not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                },
+                                "example": {
+                                    "success": false,
+                                    "statusCode": 404,
+                                    "message": "Room 99 not found",
+                                    "path": "/example",
+                                    "timestamp": "2026-12-24T14:00:00.000Z"
+                                }
+                            }
+                        }
+                    },
+                    "429": {
+                        "description": "Rate limit exceeded (100 requests per minute)",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                },
+                                "example": {
+                                    "success": false,
+                                    "statusCode": 429,
+                                    "message": "ThrottlerException: Too Many Requests",
+                                    "path": "/example",
+                                    "timestamp": "2026-12-24T14:00:00.000Z"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "access-token": []
+                    }
+                ],
+                "summary": "Disable a room (admin only)",
+                "tags": [
+                    "rooms"
+                ]
+            }
+        },
+        "/rooms/{id}/enable": {
+            "patch": {
+                "operationId": "RoomsController_enable",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "required": true,
+                        "in": "path",
+                        "description": "Room ID",
+                        "schema": {
+                            "example": 1,
+                            "type": "number"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Room enabled (is_active is now true)",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Room enabled"
+                                        },
+                                        "data": {
+                                            "type": "object",
+                                            "properties": {
+                                                "id": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                },
+                                                "name": {
+                                                    "type": "string",
+                                                    "example": "Deluxe Ocean View"
+                                                },
+                                                "description": {
+                                                    "type": "string",
+                                                    "nullable": true,
+                                                    "example": "King bed, private balcony, sea view"
+                                                },
+                                                "capacity": {
+                                                    "type": "integer",
+                                                    "example": 2
+                                                },
+                                                "price_per_night": {
+                                                    "type": "string",
+                                                    "example": "1500.50",
+                                                    "description": "Decimal value, serialized as a string"
+                                                },
+                                                "image_url": {
+                                                    "type": "string",
+                                                    "nullable": true,
+                                                    "example": "\"/images/room101.jpg\""
+                                                },
+                                                "is_active": {
+                                                    "type": "boolean",
+                                                    "example": true
+                                                },
+                                                "created_at": {
+                                                    "type": "string",
+                                                    "format": "date-time",
+                                                    "example": "2026-10-26T01:00:00.000Z"
+                                                },
+                                                "updated_at": {
+                                                    "type": "string",
+                                                    "format": "date-time",
+                                                    "example": "2026-10-26T01:00:00.000Z"
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "ID is not a number",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                },
+                                "example": {
+                                    "success": false,
+                                    "statusCode": 400,
+                                    "message": "Validation failed (numeric string is expected)",
+                                    "path": "/example",
+                                    "timestamp": "2026-12-24T14:00:00.000Z"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Missing or invalid JWT",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                },
+                                "example": {
+                                    "success": false,
+                                    "statusCode": 401,
+                                    "message": "Unauthorized",
+                                    "path": "/example",
+                                    "timestamp": "2026-12-24T14:00:00.000Z"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Admin role required",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                },
+                                "example": {
+                                    "success": false,
+                                    "statusCode": 403,
+                                    "message": "Forbidden resource",
+                                    "path": "/example",
+                                    "timestamp": "2026-12-24T14:00:00.000Z"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Room not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                },
+                                "example": {
+                                    "success": false,
+                                    "statusCode": 404,
+                                    "message": "Room 99 not found",
+                                    "path": "/example",
+                                    "timestamp": "2026-12-24T14:00:00.000Z"
+                                }
+                            }
+                        }
+                    },
+                    "429": {
+                        "description": "Rate limit exceeded (100 requests per minute)",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                },
+                                "example": {
+                                    "success": false,
+                                    "statusCode": 429,
+                                    "message": "ThrottlerException: Too Many Requests",
+                                    "path": "/example",
+                                    "timestamp": "2026-12-24T14:00:00.000Z"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "access-token": []
+                    }
+                ],
+                "summary": "Enable a room (admin only)",
+                "tags": [
+                    "rooms"
+                ]
+            }
+        },
+        "/bookings": {
+            "post": {
+                "description": "Status starts as PENDING. Stays are half-open: check_out of one booking may equal check_in of the next.",
+                "operationId": "BookingsController_create",
+                "parameters": [],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CreateBookingDto"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Booking created (status PENDING)",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Booking created"
+                                        },
+                                        "data": {
+                                            "$ref": "#/components/schemas/Booking"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Validation failed or invalid input",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                },
+                                "example": {
+                                    "success": false,
+                                    "statusCode": 400,
+                                    "message": "Bad Request",
+                                    "path": "/example",
+                                    "timestamp": "2026-12-24T14:00:00.000Z"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Missing, invalid or revoked JWT",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                },
+                                "example": {
+                                    "success": false,
+                                    "statusCode": 401,
+                                    "message": "Unauthorized",
+                                    "path": "/example",
+                                    "timestamp": "2026-12-24T14:00:00.000Z"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Resource not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                },
+                                "example": {
+                                    "success": false,
+                                    "statusCode": 404,
+                                    "message": "Not Found",
+                                    "path": "/example",
+                                    "timestamp": "2026-12-24T14:00:00.000Z"
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict with the current state",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                },
+                                "example": {
+                                    "success": false,
+                                    "statusCode": 409,
+                                    "message": "Conflict",
+                                    "path": "/example",
+                                    "timestamp": "2026-12-24T14:00:00.000Z"
+                                }
+                            }
+                        }
+                    },
+                    "429": {
+                        "description": "Rate limit exceeded",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                },
+                                "example": {
+                                    "success": false,
+                                    "statusCode": 429,
+                                    "message": "Too Many Requests",
+                                    "path": "/example",
+                                    "timestamp": "2026-12-24T14:00:00.000Z"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "access-token": []
+                    }
+                ],
+                "summary": "Create a booking",
+                "tags": [
+                    "bookings"
+                ]
+            },
+            "get": {
+                "description": "Users see their own bookings; admins see every booking.",
+                "operationId": "BookingsController_findAll",
+                "parameters": [
+                    {
+                        "name": "page",
+                        "required": false,
+                        "in": "query",
+                        "schema": {
+                            "minimum": 1,
+                            "default": 1,
+                            "example": 1,
+                            "type": "number"
+                        }
+                    },
+                    {
+                        "name": "limit",
+                        "required": false,
+                        "in": "query",
+                        "schema": {
+                            "minimum": 1,
+                            "maximum": 100,
+                            "default": 10,
+                            "example": 10,
+                            "type": "number"
+                        }
+                    },
+                    {
+                        "name": "status",
+                        "required": false,
+                        "in": "query",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "PENDING",
+                                "APPROVED",
+                                "CANCELLED",
+                                "PAID"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "user_id",
+                        "required": false,
+                        "in": "query",
+                        "description": "Admin only: filter by user id",
+                        "schema": {
+                            "type": "number"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Paginated bookings",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Request successful"
+                                        },
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/Booking"
+                                            }
+                                        },
+                                        "meta": {
+                                            "$ref": "#/components/schemas/PageMeta"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Validation failed or invalid input",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                },
+                                "example": {
+                                    "success": false,
+                                    "statusCode": 400,
+                                    "message": "Bad Request",
+                                    "path": "/example",
+                                    "timestamp": "2026-12-24T14:00:00.000Z"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Missing, invalid or revoked JWT",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                },
+                                "example": {
+                                    "success": false,
+                                    "statusCode": 401,
+                                    "message": "Unauthorized",
+                                    "path": "/example",
+                                    "timestamp": "2026-12-24T14:00:00.000Z"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "access-token": []
+                    }
+                ],
+                "summary": "List bookings",
+                "tags": [
+                    "bookings"
+                ]
+            }
+        },
+        "/bookings/{id}": {
+            "get": {
+                "operationId": "BookingsController_findOne",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "required": true,
+                        "in": "path",
+                        "schema": {
+                            "example": 1,
+                            "type": "number"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The booking",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Request successful"
+                                        },
+                                        "data": {
+                                            "$ref": "#/components/schemas/Booking"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Validation failed or invalid input",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                },
+                                "example": {
+                                    "success": false,
+                                    "statusCode": 400,
+                                    "message": "Bad Request",
+                                    "path": "/example",
+                                    "timestamp": "2026-12-24T14:00:00.000Z"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Missing, invalid or revoked JWT",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                },
+                                "example": {
+                                    "success": false,
+                                    "statusCode": 401,
+                                    "message": "Unauthorized",
+                                    "path": "/example",
+                                    "timestamp": "2026-12-24T14:00:00.000Z"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Resource not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                },
+                                "example": {
+                                    "success": false,
+                                    "statusCode": 404,
+                                    "message": "Not Found",
+                                    "path": "/example",
+                                    "timestamp": "2026-12-24T14:00:00.000Z"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "access-token": []
+                    }
+                ],
+                "summary": "Get one booking (own booking, or any as admin)",
+                "tags": [
+                    "bookings"
+                ]
+            }
+        },
+        "/bookings/{id}/cancel": {
+            "patch": {
+                "operationId": "BookingsController_cancel",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "required": true,
+                        "in": "path",
+                        "schema": {
+                            "example": 1,
+                            "type": "number"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The cancelled booking",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Booking cancelled"
+                                        },
+                                        "data": {
+                                            "$ref": "#/components/schemas/Booking"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Validation failed or invalid input",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                },
+                                "example": {
+                                    "success": false,
+                                    "statusCode": 400,
+                                    "message": "Bad Request",
+                                    "path": "/example",
+                                    "timestamp": "2026-12-24T14:00:00.000Z"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Missing, invalid or revoked JWT",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                },
+                                "example": {
+                                    "success": false,
+                                    "statusCode": 401,
+                                    "message": "Unauthorized",
+                                    "path": "/example",
+                                    "timestamp": "2026-12-24T14:00:00.000Z"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Resource not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                },
+                                "example": {
+                                    "success": false,
+                                    "statusCode": 404,
+                                    "message": "Not Found",
+                                    "path": "/example",
+                                    "timestamp": "2026-12-24T14:00:00.000Z"
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict with the current state",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                },
+                                "example": {
+                                    "success": false,
+                                    "statusCode": 409,
+                                    "message": "Conflict",
+                                    "path": "/example",
+                                    "timestamp": "2026-12-24T14:00:00.000Z"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "access-token": []
+                    }
+                ],
+                "summary": "Cancel a booking (PENDING or APPROVED only)",
+                "tags": [
+                    "bookings"
+                ]
+            }
+        },
+        "/bookings/{id}/status": {
+            "patch": {
+                "description": "PENDING -> APPROVED/CANCELLED, APPROVED -> PAID/CANCELLED. PAID and CANCELLED are final.",
+                "operationId": "BookingsController_updateStatus",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "required": true,
+                        "in": "path",
+                        "schema": {
+                            "example": 1,
+                            "type": "number"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/UpdateBookingStatusDto"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "The updated booking",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Booking status updated"
+                                        },
+                                        "data": {
+                                            "$ref": "#/components/schemas/Booking"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Validation failed or invalid input",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                },
+                                "example": {
+                                    "success": false,
+                                    "statusCode": 400,
+                                    "message": "Bad Request",
+                                    "path": "/example",
+                                    "timestamp": "2026-12-24T14:00:00.000Z"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Missing, invalid or revoked JWT",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                },
+                                "example": {
+                                    "success": false,
+                                    "statusCode": 401,
+                                    "message": "Unauthorized",
+                                    "path": "/example",
+                                    "timestamp": "2026-12-24T14:00:00.000Z"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Admin role required",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                },
+                                "example": {
+                                    "success": false,
+                                    "statusCode": 403,
+                                    "message": "Forbidden",
+                                    "path": "/example",
+                                    "timestamp": "2026-12-24T14:00:00.000Z"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Resource not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                },
+                                "example": {
+                                    "success": false,
+                                    "statusCode": 404,
+                                    "message": "Not Found",
+                                    "path": "/example",
+                                    "timestamp": "2026-12-24T14:00:00.000Z"
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict with the current state",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                },
+                                "example": {
+                                    "success": false,
+                                    "statusCode": 409,
+                                    "message": "Conflict",
+                                    "path": "/example",
+                                    "timestamp": "2026-12-24T14:00:00.000Z"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "access-token": []
+                    }
+                ],
+                "summary": "Change a booking status (admin only)",
+                "tags": [
+                    "bookings"
+                ]
+            }
+        },
+        "/notifications": {
+            "get": {
+                "description": "Events recorded when one of my bookings is created or cancelled, newest first.",
+                "operationId": "NotificationsController_findAll",
+                "parameters": [
+                    {
+                        "name": "page",
+                        "required": false,
+                        "in": "query",
+                        "schema": {
+                            "minimum": 1,
+                            "default": 1,
+                            "example": 1,
+                            "type": "number"
+                        }
+                    },
+                    {
+                        "name": "limit",
+                        "required": false,
+                        "in": "query",
+                        "schema": {
+                            "minimum": 1,
+                            "maximum": 100,
+                            "default": 10,
+                            "example": 10,
+                            "type": "number"
+                        }
+                    },
+                    {
+                        "name": "unread",
+                        "required": false,
+                        "in": "query",
+                        "description": "true = only unread notifications",
+                        "schema": {
+                            "type": "boolean"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Paginated notifications",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Request successful"
+                                        },
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/Notification"
+                                            }
+                                        },
+                                        "meta": {
+                                            "$ref": "#/components/schemas/PageMeta"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Validation failed or invalid input",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                },
+                                "example": {
+                                    "success": false,
+                                    "statusCode": 400,
+                                    "message": "Bad Request",
+                                    "path": "/example",
+                                    "timestamp": "2026-12-24T14:00:00.000Z"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Missing, invalid or revoked JWT",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                },
+                                "example": {
+                                    "success": false,
+                                    "statusCode": 401,
+                                    "message": "Unauthorized",
+                                    "path": "/example",
+                                    "timestamp": "2026-12-24T14:00:00.000Z"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "access-token": []
+                    }
+                ],
+                "summary": "List my notifications",
+                "tags": [
+                    "notifications"
+                ]
+            }
+        },
+        "/notifications/{id}/read": {
+            "patch": {
+                "operationId": "NotificationsController_markRead",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "required": true,
+                        "in": "path",
+                        "schema": {
+                            "example": 1,
+                            "type": "number"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The notification with read_at set",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Notification marked as read"
+                                        },
+                                        "data": {
+                                            "$ref": "#/components/schemas/Notification"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Validation failed or invalid input",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                },
+                                "example": {
+                                    "success": false,
+                                    "statusCode": 400,
+                                    "message": "Bad Request",
+                                    "path": "/example",
+                                    "timestamp": "2026-12-24T14:00:00.000Z"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Missing, invalid or revoked JWT",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                },
+                                "example": {
+                                    "success": false,
+                                    "statusCode": 401,
+                                    "message": "Unauthorized",
+                                    "path": "/example",
+                                    "timestamp": "2026-12-24T14:00:00.000Z"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Resource not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ErrorResponse"
+                                },
+                                "example": {
+                                    "success": false,
+                                    "statusCode": 404,
+                                    "message": "Not Found",
+                                    "path": "/example",
+                                    "timestamp": "2026-12-24T14:00:00.000Z"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "access-token": []
+                    }
+                ],
+                "summary": "Mark one of my notifications as read",
+                "tags": [
+                    "notifications"
+                ]
+            }
+        },
+        "/health": {
+            "get": {
+                "description": "Checks the database and Redis. Returns 503 if either is down.",
+                "operationId": "HealthController_check",
+                "parameters": [],
+                "responses": {
+                    "200": {
+                        "description": "Everything is up",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "ok"
+                                        },
+                                        "db": {
+                                            "type": "string",
+                                            "example": "up"
+                                        },
+                                        "redis": {
+                                            "type": "string",
+                                            "example": "up"
+                                        },
+                                        "uptime_seconds": {
+                                            "type": "integer",
+                                            "example": 120
+                                        },
+                                        "timestamp": {
+                                            "type": "string",
+                                            "format": "date-time"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "503": {
+                        "description": "Database or Redis is down"
+                    }
+                },
+                "summary": "Health check",
+                "tags": [
+                    "health"
+                ]
+            }
+        }
+    },
+    "info": {
+        "title": "Hotel Booking System API",
+        "description": "REST API for hotel rooms, bookings, search and notifications.\n\n## How to try it (authentication flow)\n1. Open **auth → POST /auth/login** and click *Try it out*.\n2. Log in with a seed account (below) and copy `data.access_token` from the response.\n3. Click **Authorize** (top right), paste the token (without the word \"Bearer\") and confirm.\n4. Locked endpoints now work. **POST /auth/logout** revokes the token immediately.\n\n| Role | Email | Password |\n|---|---|---|\n| ADMIN | `admin@example.com` | `Admin123!` |\n| USER | `user@example.com` | `User1234!` |\n\nAccounts created with `POST /auth/register` are always regular users.\n\n## Who can call what\n- **Guest** (no token): register, login, list/view/search rooms, health check.\n- **User**: profile, own bookings (create, list, view, cancel), own notifications.\n- **Admin**: everything a user can, plus room management (create, edit, delete,\n  enable/disable, image upload), all bookings and booking status changes.\n\nMissing/invalid token answers `401`, a wrong role answers `403`.\n\n## Response format\nSuccess: `{ \"success\": true, \"message\": \"...\", \"data\": ..., \"meta\": ... }` \n(`meta` only on paginated lists). Error: `{ \"success\": false, \"statusCode\": 400, \"message\": \"...\", \"errors\": [...], \"path\": \"...\", \"timestamp\": \"...\" }`.\n\n## Rate limiting\n100 requests/minute per client by default; `/auth/login` and `/auth/register` allow\n5/minute and `POST /bookings` 10/minute. Exceeding a limit returns `429`.",
+        "version": "1.0.0",
+        "contact": {}
+    },
+    "tags": [
+        {
+            "name": "auth",
+            "description": "Sign up, login, logout"
+        },
+        {
+            "name": "users",
+            "description": "Own profile"
+        },
+        {
+            "name": "rooms",
+            "description": "Room listing, details, search, images and admin management"
+        },
+        {
+            "name": "bookings",
+            "description": "Booking management"
+        },
+        {
+            "name": "notifications",
+            "description": "Booking event notifications"
+        },
+        {
+            "name": "health",
+            "description": "Health check"
+        }
+    ],
+    "servers": [],
+    "components": {
+        "securitySchemes": {
+            "access-token": {
+                "scheme": "bearer",
+                "bearerFormat": "JWT",
+                "type": "http"
+            }
+        },
+        "schemas": {
+            "RegisterDto": {
+                "type": "object",
+                "properties": {
+                    "name": {
+                        "type": "string",
+                        "example": "Somchai Jaidee",
+                        "maxLength": 100
+                    },
+                    "email": {
+                        "type": "string",
+                        "example": "somchai@example.com"
+                    },
+                    "password": {
+                        "type": "string",
+                        "example": "Passw0rd!",
+                        "minLength": 8,
+                        "maxLength": 72
+                    }
+                },
+                "required": [
+                    "name",
+                    "email",
+                    "password"
+                ]
+            },
+            "LoginDto": {
+                "type": "object",
+                "properties": {
+                    "email": {
+                        "type": "string",
+                        "example": "admin@example.com"
+                    },
+                    "password": {
+                        "type": "string",
+                        "example": "Admin123!"
+                    }
+                },
+                "required": [
+                    "email",
+                    "password"
+                ]
+            },
+            "UpdateProfileDto": {
+                "type": "object",
+                "properties": {
+                    "name": {
+                        "type": "string",
+                        "example": "Somchai J.",
+                        "maxLength": 100
+                    },
+                    "email": {
+                        "type": "string",
+                        "example": "new@example.com"
+                    },
+                    "password": {
+                        "type": "string",
+                        "description": "New password. Requires current_password.",
+                        "minLength": 8,
+                        "maxLength": 72
+                    },
+                    "current_password": {
+                        "type": "string",
+                        "description": "Required when changing the password"
+                    }
+                }
+            },
+            "CreateRoomDto": {
+                "type": "object",
+                "properties": {
+                    "name": {
+                        "type": "string",
+                        "description": "Room name (max 100 characters)",
+                        "example": "Deluxe Ocean View",
+                        "maxLength": 100
+                    },
+                    "description": {
+                        "type": "string",
+                        "description": "Free-text description of the room",
+                        "example": "King bed, private balcony, sea view"
+                    },
+                    "capacity": {
+                        "type": "number",
+                        "description": "Maximum number of guests",
+                        "example": 2
+                    },
+                    "price_per_night": {
+                        "type": "number",
+                        "description": "Price per night",
+                        "example": 1500.5
+                    },
+                    "image_url": {
+                        "type": "string",
+                        "description": "URL of a photo of the room",
+                        "example": "/images/room101.jpg"
+                    },
+                    "is_active": {
+                        "type": "boolean",
+                        "description": "Whether the room can currently be booked",
+                        "example": true,
+                        "default": true
+                    }
+                },
+                "required": [
+                    "name",
+                    "capacity",
+                    "price_per_night"
+                ]
+            },
+            "UpdateRoomDto": {
+                "type": "object",
+                "properties": {
+                    "name": {
+                        "type": "string",
+                        "description": "Room name (max 100 characters)",
+                        "example": "Deluxe Ocean View",
+                        "maxLength": 100
+                    },
+                    "description": {
+                        "type": "string",
+                        "description": "Free-text description of the room",
+                        "example": "King bed, private balcony, sea view"
+                    },
+                    "capacity": {
+                        "type": "number",
+                        "description": "Maximum number of guests",
+                        "example": 2
+                    },
+                    "price_per_night": {
+                        "type": "number",
+                        "description": "Price per night",
+                        "example": 1500.5
+                    },
+                    "image_url": {
+                        "type": "string",
+                        "description": "URL of a photo of the room",
+                        "example": "/images/room101.jpg"
+                    },
+                    "is_active": {
+                        "type": "boolean",
+                        "description": "Whether the room can currently be booked",
+                        "example": true,
+                        "default": true
+                    }
+                }
+            },
+            "CreateBookingDto": {
+                "type": "object",
+                "properties": {
+                    "room_id": {
+                        "type": "number",
+                        "example": 1,
+                        "description": "Id of an active room"
+                    },
+                    "check_in": {
+                        "type": "string",
+                        "example": "2026-12-24T14:00:00.000Z",
+                        "description": "ISO-8601 date-time (use UTC, e.g. with a trailing Z)"
+                    },
+                    "check_out": {
+                        "type": "string",
+                        "example": "2026-12-26T11:00:00.000Z"
+                    }
+                },
+                "required": [
+                    "room_id",
+                    "check_in",
+                    "check_out"
+                ]
+            },
+            "UpdateBookingStatusDto": {
+                "type": "object",
+                "properties": {
+                    "status": {
+                        "type": "string",
+                        "enum": [
+                            "PENDING",
+                            "APPROVED",
+                            "CANCELLED",
+                            "PAID"
+                        ],
+                        "example": "APPROVED"
+                    }
+                },
+                "required": [
+                    "status"
+                ]
+            },
+            "PageMeta": {
+                "type": "object",
+                "properties": {
+                    "total": {
+                        "type": "integer",
+                        "example": 25,
+                        "description": "Items matching the filters"
+                    },
+                    "page": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "limit": {
+                        "type": "integer",
+                        "example": 10
+                    },
+                    "totalPages": {
+                        "type": "integer",
+                        "example": 3
+                    }
+                }
+            },
+            "ErrorResponse": {
+                "type": "object",
+                "required": [
+                    "success",
+                    "statusCode",
+                    "message",
+                    "path",
+                    "timestamp"
+                ],
+                "properties": {
+                    "success": {
+                        "type": "boolean",
+                        "example": false
+                    },
+                    "statusCode": {
+                        "type": "integer",
+                        "example": 400
+                    },
+                    "message": {
+                        "type": "string",
+                        "example": "Validation failed"
+                    },
+                    "errors": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "description": "Only for validation errors: one entry per problem",
+                        "example": [
+                            "capacity must be an integer number"
+                        ]
+                    },
+                    "path": {
+                        "type": "string",
+                        "example": "/rooms"
+                    },
+                    "timestamp": {
+                        "type": "string",
+                        "format": "date-time",
+                        "example": "2026-12-24T14:00:00.000Z"
+                    }
+                }
+            },
+            "Booking": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "example": 12
+                    },
+                    "user_id": {
+                        "type": "integer",
+                        "example": 2
+                    },
+                    "room_id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "check_in": {
+                        "type": "string",
+                        "format": "date-time",
+                        "example": "2026-12-24T14:00:00.000Z"
+                    },
+                    "check_out": {
+                        "type": "string",
+                        "format": "date-time",
+                        "example": "2026-12-26T11:00:00.000Z"
+                    },
+                    "status": {
+                        "type": "string",
+                        "enum": [
+                            "PENDING",
+                            "APPROVED",
+                            "CANCELLED",
+                            "PAID"
+                        ],
+                        "example": "PENDING"
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "updated_at": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "room": {
+                        "type": "object",
+                        "properties": {
+                            "id": {
+                                "type": "integer",
+                                "example": 1
+                            },
+                            "name": {
+                                "type": "string",
+                                "example": "Deluxe Ocean View"
+                            },
+                            "price_per_night": {
+                                "type": "string",
+                                "example": "1500.50"
+                            }
+                        }
+                    }
+                }
+            },
+            "Notification": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "example": 5
+                    },
+                    "user_id": {
+                        "type": "integer",
+                        "example": 2
+                    },
+                    "booking_id": {
+                        "type": "integer",
+                        "example": 12
+                    },
+                    "type": {
+                        "type": "string",
+                        "enum": [
+                            "BOOKING_CREATED",
+                            "BOOKING_CANCELLED"
+                        ],
+                        "example": "BOOKING_CREATED"
+                    },
+                    "message": {
+                        "type": "string",
+                        "example": "Booking #12 for \"Deluxe Ocean View\" was created and is pending approval"
+                    },
+                    "read_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "nullable": true,
+                        "example": null
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                }
+            },
+            "UserProfile": {
+                "type": "object",
+                "description": "Never contains the password",
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "example": 2
+                    },
+                    "name": {
+                        "type": "string",
+                        "example": "Ann Smith"
+                    },
+                    "email": {
+                        "type": "string",
+                        "format": "email",
+                        "example": "user@example.com"
+                    },
+                    "role": {
+                        "type": "string",
+                        "enum": [
+                            "USER",
+                            "ADMIN"
+                        ],
+                        "example": "USER"
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "updated_at": {
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                }
+            },
+            "Token": {
+                "type": "object",
+                "properties": {
+                    "access_token": {
+                        "type": "string",
+                        "description": "JWT, valid for 1 hour. Send as \"Authorization: Bearer <token>\"",
+                        "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+                    }
+                }
+            }
+        }
+    }
+}

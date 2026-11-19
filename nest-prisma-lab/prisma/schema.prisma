@@ -6,23 +6,76 @@ datasource db {
   provider = "mysql"
 }
 
-model rooms {
-  id              Int       @id @default(autoincrement())
-  name            String    @db.VarChar(100)
-  description     String?   @db.Text
-  capacity        Int
-  price_per_night Decimal   @db.Decimal(10, 2)
-  image_url       String?   @db.VarChar(255)
-  is_active       Boolean?  @default(true)
-  created_at      DateTime? @default(now()) @db.DateTime(0)
-  updated_at      DateTime? @default(now()) @db.DateTime(0)
+enum Role {
+  USER
+  ADMIN
+}
+
+enum BookingStatus {
+  PENDING
+  APPROVED
+  CANCELLED
+  PAID
+}
+
+enum NotificationType {
+  BOOKING_CREATED
+  BOOKING_CANCELLED
 }
 
 model users {
-  id         Int       @id @default(autoincrement())
-  username   String    @unique(map: "username") @db.VarChar(50)
-  password   String    @db.VarChar(255)
-  role       String    @default("USER") @db.VarChar(20)
-  created_at DateTime? @default(now()) @db.DateTime(0)
-  updated_at DateTime? @default(now()) @db.DateTime(0)
+  id            Int             @id @default(autoincrement())
+  name          String          @db.VarChar(100)
+  email         String          @unique(map: "users_email_key") @db.VarChar(255)
+  password      String          @db.VarChar(255)
+  role          Role            @default(USER)
+  created_at    DateTime        @default(now())
+  updated_at    DateTime        @updatedAt
+  bookings      bookings[]
+  notifications notifications[]
+}
+
+model rooms {
+  id              Int        @id @default(autoincrement())
+  name            String     @db.VarChar(100)
+  description     String?    @db.Text
+  capacity        Int
+  price_per_night Decimal    @db.Decimal(10, 2)
+  image_url       String?    @db.VarChar(255)
+  is_active       Boolean    @default(true)
+  created_at      DateTime   @default(now())
+  updated_at      DateTime   @updatedAt
+  bookings        bookings[]
+}
+
+model bookings {
+  id            Int             @id @default(autoincrement())
+  user_id       Int
+  room_id       Int
+  check_in      DateTime
+  check_out     DateTime
+  status        BookingStatus   @default(PENDING)
+  created_at    DateTime        @default(now())
+  updated_at    DateTime        @updatedAt
+  user          users           @relation(fields: [user_id], references: [id], onDelete: Restrict)
+  room          rooms           @relation(fields: [room_id], references: [id], onDelete: Restrict)
+  notifications notifications[]
+
+  @@index([room_id, check_in, check_out])
+  @@index([user_id])
+}
+
+model notifications {
+  id         Int              @id @default(autoincrement())
+  user_id    Int
+  booking_id Int
+  type       NotificationType
+  message    String           @db.VarChar(255)
+  read_at    DateTime?
+  created_at DateTime         @default(now())
+  user       users            @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  booking    bookings         @relation(fields: [booking_id], references: [id], onDelete: Cascade)
+
+  @@index([user_id, created_at])
+  @@index([booking_id])
 }

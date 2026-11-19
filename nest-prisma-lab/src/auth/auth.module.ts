@@ -10,9 +10,14 @@ import { UsersModule } from '../users/users.module';
   imports: [
     UsersModule,
     PassportModule,
-    JwtModule.register({
-      secret: process.env.JWT_SECRET,
-      signOptions: { expiresIn: '1h' },
+    JwtModule.registerAsync({
+      useFactory: () => {
+        const secret = process.env.JWT_SECRET;
+        if (!secret) {
+          throw new Error('JWT_SECRET is missing from the environment');
+        }
+        return { secret, signOptions: { expiresIn: '1h' } };
+      },
     }),
   ],
   controllers: [AuthController],

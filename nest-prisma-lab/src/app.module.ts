@@ -3,36 +3,30 @@ import { APP_GUARD } from '@nestjs/core';
 import { CacheModule } from '@nestjs/cache-manager';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { createKeyv } from '@keyv/redis';
-import { createObserveModule } from '@nestjs/observe';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { PrismaModule } from './prisma/prisma.module';
 import { RoomsModule } from './rooms/rooms.module';
 import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
-
-export const { ObserveModule, ObserveInstrument } = createObserveModule();
+import { BookingsModule } from './bookings/bookings.module';
+import { NotificationsModule } from './notifications/notifications.module';
+import { HealthModule } from './health/health.module';
 
 @Module({
   imports: [
-    // Distributed tracing, auto-correlated logs, request/job metrics, error
-    // telemetry, alarms, and more — out of the box. Sign up at https://observe.nestjs.com
-    ObserveModule.forRoot({
-      appKey: 'YOUR_APP_KEY',
-      appSecret: 'YOUR_APP_SECRET',
-      serviceId: 'nest-prisma-lab',
-    }),
-
     CacheModule.registerAsync({
       isGlobal: true,
-      useFactory: async () => ({
-        stores: [
-          createKeyv(
-            `redis://${process.env.REDIS_HOST ?? '127.0.0.1'}:${process.env.REDIS_PORT ?? 6379}`,
-          ),
-        ],
-        ttl: 5 * 60 * 1000, // milliseconds
-        }),
+      useFactory: () => {
+        const redisUrl = process.env.REDIS_URL;
+        if (!redisUrl) {
+          throw new Error('REDIS_URL is missing');
+        }
+        return {
+          stores: [createKeyv(redisUrl)],
+          ttl: 5 * 60 * 1000, // milliseconds
+        };
+      },
     }),
 
     ThrottlerModule.forRoot([
@@ -44,14 +38,14 @@ export const { ObserveModule, ObserveInstrument } = createObserveModule();
     ]),
 
     PrismaModule,
-    RoomsModule,
-    UsersModule,
     AuthModule,
+    UsersModule,
+    RoomsModule,
+    BookingsModule,
+    NotificationsModule,
+    HealthModule,
   ],
   controllers: [AppController],
-  providers: [
-    AppService,
-    { provide: APP_GUARD, useClass: ThrottlerGuard },
-  ],
+  providers: [AppService, { provide: APP_GUARD, useClass: ThrottlerGuard }],
 })
 export class AppModule {}
