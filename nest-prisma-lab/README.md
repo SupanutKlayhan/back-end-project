@@ -7,8 +7,8 @@ Built with **NestJS 12, TypeScript, Prisma 7 (MySQL / MariaDB), Redis, JWT**, do
 |---|---|
 | Team | `691_ITCS258_Group05`|
 | Member | 6788050 Supanat Klayhan  | 6788153 Risa Smuthkochorn | 6788165 Pongsakorn Arayasak |
-| Deployed API | **_add the Railway URL here after deploying_** **have to fill** |
-| Swagger UI | `<deployed URL>/api-docs` (locally `http://localhost:3000/api-docs`) |
+| Deployed API | https://api-production-6d2cc168.up.railway.app |
+| Swagger UI | https://api-production-6d2cc168.up.railway.app/api-docs (locally `http://localhost:3000/api-docs`) |
 | OpenAPI file | [`openapi.json`](openapi.json) (also served at `/api-docs-json`) |
 | Health check | `GET /health` |
 
