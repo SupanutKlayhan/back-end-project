@@ -5,8 +5,11 @@ import {
   IsNotEmpty,
   IsNumber,
   IsOptional,
+  IsPositive,
   IsString,
+  Max,
   MaxLength,
+  Min,
 } from 'class-validator';
 
 export class CreateRoomDto {
@@ -37,6 +40,8 @@ export class CreateRoomDto {
   })
   @IsNotEmpty()
   @IsInt()
+  @Min(1)
+  @Max(50)
   capacity: number;
 
   @ApiProperty({
@@ -45,7 +50,9 @@ export class CreateRoomDto {
     type: Number,
   })
   @IsNotEmpty()
-  @IsNumber()
+  @IsNumber({ maxDecimalPlaces: 2 })
+  @IsPositive()
+  @Max(99_999_999.99)
   price_per_night: number;
 
   @ApiPropertyOptional({

@@ -78,7 +78,7 @@ export class AllExceptionsFilter implements ExceptionFilter {
             message: 'Record not found',
           };
         default:
-          if (exception.code.startsWith('P1')) {
+          if (exception.code.startsWith('P1') || isConnectionError(exception)) {
             return this.databaseDown();
           }
       }
@@ -100,4 +100,10 @@ export class AllExceptionsFilter implements ExceptionFilter {
       message: 'Database is temporarily unavailable, please try again later',
     };
   }
+}
+
+function isConnectionError(e: Prisma.PrismaClientKnownRequestError): boolean {
+  if (e.code === 'P2039') return true; 
+  const cause = JSON.stringify(e.meta?.driverAdapterError ?? '');
+  return /ECONNREFUSED|ETIMEDOUT|ENOTFOUND|pool failed/i.test(cause);
 }
