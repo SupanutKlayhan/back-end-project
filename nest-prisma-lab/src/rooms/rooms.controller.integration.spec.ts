@@ -87,6 +87,32 @@ describe('RoomsController (integration, service mocked)', () => {
       expect(res.status).toBe(400);
       expect(roomsServiceMock.create).not.toHaveBeenCalled();
     });
+    
+    it.each([
+      { label: 'capacity 0', override: { capacity: 0 } },
+      { label: 'capacity 51', override: { capacity: 51 } },
+      { label: 'price 0', override: { price_per_night: 0 } },
+      { label: 'price with 3 decimals', override: { price_per_night: 1500.555 } },
+      { label: 'price above the maximum', override: { price_per_night: 100_000_000 } },
+      { label: 'name longer than 100 characters', override: { name: 'x'.repeat(101) } },
+    ])('returns 400 for $label (F2 limits)', async ({ override }) => {
+      const res = await request(app.getHttpServer())
+        .post('/rooms')
+        .send({ ...body, ...override });
+
+      expect(res.status).toBe(400);
+      expect(roomsServiceMock.create).not.toHaveBeenCalled();
+    });
+
+    it('accepts the boundary values capacity 50 and price 0.01', async () => {
+      roomsServiceMock.create.mockResolvedValue(room);
+      const edge = { ...body, capacity: 50, price_per_night: 0.01 };
+
+      const res = await request(app.getHttpServer()).post('/rooms').send(edge);
+
+      expect(res.status).toBe(201);
+      expect(roomsServiceMock.create).toHaveBeenCalledWith(edge);
+    });
   });
 
   describe('GET /rooms', () => {

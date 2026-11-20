@@ -34,8 +34,10 @@ export class CreateRoomDto {
   description?: string;
 
   @ApiProperty({
-    description: 'Maximum number of guests',
+    description: 'Maximum number of guests (1–50)',
     example: 2,
+    minimum: 1,
+    maximum: 50,
     type: Number,
   })
   @IsNotEmpty()
@@ -45,8 +47,10 @@ export class CreateRoomDto {
   capacity: number;
 
   @ApiProperty({
-    description: 'Price per night',
+    description: 'Price per night, greater than 0, at most 2 decimal places',
     example: 1500.5,
+    minimum: 0.01,
+    maximum: 99_999_999.99,
     type: Number,
   })
   @IsNotEmpty()
