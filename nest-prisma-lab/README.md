@@ -310,11 +310,17 @@ The e2e suites run the real `AppModule` (real validation, guards, filters, Prism
 docker compose -f compose.yml -f compose.local.yml up -d --wait db redis
 npm ci && npm run db:generate && npm run db:deploy
 
+# one-time setup for e2e: separate test database (never the dev DB)
+cp .env.test.example .env.test   # PowerShell: Copy-Item .env.test.example .env.test
+docker compose exec db mariadb -uroot -prootpass -e "CREATE DATABASE IF NOT EXISTS hotel_booking_test"
+DATABASE_URL=mysql://root:rootpass@127.0.0.1:3307/hotel_booking_test npm run db:deploy
+# PowerShell: $env:DATABASE_URL="mysql://root:rootpass@127.0.0.1:3307/hotel_booking_test"; npm run db:deploy; Remove-Item Env:DATABASE_URL
+
 npm test            # unit + controller-integration tests (no database needed)
 npm run test:e2e    # API/end-to-end tests against the database
 ```
 
-> The e2e tests create temporary data in the database from `DATABASE_URL` and delete it afterwards. Use the development database, never a production one.
+> `npm run test:e2e` loads `.env.test` (`test/load-test-env.ts`) and stops unless `DATABASE_URL` points to a `*_test` database. The tests create temporary data there and delete it afterwards. Never point it at the development or production database.
 
 ### 11.3 Test cases
 
@@ -343,10 +349,10 @@ npm run test:e2e    # API/end-to-end tests against the database
 
 | Command            | Result                               |
 | ------------------ | ------------------------------------ |
-| `npm test`         | **8 suites passed, 64 tests passed** |
+| `npm test`         | **8 suites passed, 71 tests passed** |
 | `npm run test:e2e` | **3 suites passed, 30 tests passed** |
 
-Last run: 19/11/2026 — Node 24, MariaDB 11.4 (Docker Compose). Both commands exit with code 0 and print no failures.
+Last run: 20/11/2026 — Node 24, MariaDB 11.4 (Docker Compose). Both commands exit with code 0 and print no failures.
 
 ## 12. Deployment
 
@@ -432,5 +438,3 @@ AI tools were used as assistants. All design decisions, final code and this docu
 | Gemini (Google)    | Step-by-step help with the Railway deployment (the team member ran every command and set every variable)                                                                                            |
 
 How we used it: AI output was treated as a suggestion. A team member read each suggested change, ran `npm run build`, `npm test` and `npm run test:e2e`, and only committed what passed. Secrets (JWT secret, database passwords) were never shared with an AI tool.
-
-Have to fill
