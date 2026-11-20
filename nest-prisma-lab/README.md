@@ -373,8 +373,9 @@ flowchart LR
 1. **Push the code** to your GitHub repository (the folder with the `Dockerfile` is `nest-prisma-lab/`; the folder `nest-prisma-lab/prisma/migrations/` must be committed).
 2. **New project:** railway.com → _New Project_ → _Deploy from GitHub repo_ → pick the repository (allow Railway's GitHub app to access it). This creates the API service.
 3. In the API service → **Settings → Source → Root Directory** = `/nest-prisma-lab`. Railway builds the `Dockerfile` found there.
-4. In the same project click **+ New → Docker Image** → `mariadb:11.4` (the same version as `compose.yml`, so local and production behave identically). Rename the service to `MariaDB`, add a volume at `/var/lib/mysql`, and set its variables `MARIADB_DATABASE=hotel_booking`, ``MARIADB_USER=hotel`, `MARIADB_PASSWORD`, `MARIADB_ROOT_PASSWORD` (random 64-character hex values). Then **+ New → Database → Add Redis**.
+4. In the same project click **+ New → Docker Image** → `mariadb:11.4` (the same version as `compose.yml`, so local and production behave identically). Rename the service to `MariaDB`, add a volume at `/var/lib/mysql`, and set its variables `MARIADB_DATABASE=hotel_booking`, `MARIADB_USER=hotel`, `MARIADB_PASSWORD`, `MARIADB_ROOT_PASSWORD` (random 64-character hex values). Then **+ New → Database → Add Redis**.
 5. API service → **Variables** (use the _Raw editor_; adjust the service names `MariaDB` / `Redis` if yours differ):
+
    ```
     DATABASE_URL=mysql://hotel:<same value as MARIADB_PASSWORD>@mariadb.railway.internal:3306/hotel_booking
     REDIS_URL=${{Redis.REDIS_URL}}
@@ -383,7 +384,12 @@ flowchart LR
     RUN_SEED=true
    ```
 
-Generate the secret with `node -e "console.log(require('crypto').randomBytes(48).toString('hex'))"`. Railway sets `PORT` itself; the app listens on it. 6. **Keep uploaded images across deploys:** API service → **Settings → Volumes** (or `Ctrl/Cmd+K` → _Volume_) → mount path `/app/uploads`, and add the variable `RAILWAY_RUN_UID=0` (the container otherwise runs as an unprivileged user that cannot write to the volume). 7. API service → **Settings → Deploy → Healthcheck Path** = `/health`. Railway waits for a `2xx` from it before switching traffic (default timeout 300 s). 8. API service → **Settings → Networking → Generate Domain**. Open `https://<domain>/health` and `https://<domain>/api-docs`. 9. Every push to the fork's `main` builds and deploys automatically. After a change is merged into the team repository, click **Sync fork** on the fork to deploy it. The container applies new migrations on start, then seeds (`RUN_SEED=true`), then starts the API. The logs are in the service's **Deployments → View logs**.
+   Generate the secret with `node -e "console.log(require('crypto').randomBytes(48).toString('hex'))"`. Railway sets `PORT` itself; the app listens on it.
+
+6. **Keep uploaded images across deploys:** API service → **Settings → Volumes** (or `Ctrl/Cmd+K` → _Volume_) → mount path `/app/uploads`, and add the variable `RAILWAY_RUN_UID=0` (the container otherwise runs as an unprivileged user that cannot write to the volume).
+7. API service → **Settings → Deploy → Healthcheck Path** = `/health`. Railway waits for a `2xx` from it before switching traffic (default timeout 300 s).
+8. API service → **Settings → Networking → Generate Domain**. Open `https://<domain>/health` and `https://<domain>/api-docs`.
+9. Every push to the fork's `main` builds and deploys automatically. After a change is merged into the team repository, click **Sync fork** on the fork to deploy it. The container applies new migrations on start, then seeds (`RUN_SEED=true`), then starts the API. The logs are in the service's **Deployments → View logs**.
 
 **Verify the deployment:**
 
