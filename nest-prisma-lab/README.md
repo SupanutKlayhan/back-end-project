@@ -3,14 +3,14 @@
 REST API for hotel rooms, bookings, room search and booking notifications (ITCS258 Unit Project).
 Built with **NestJS 12, TypeScript, Prisma 7 (MySQL / MariaDB), Redis, JWT**, documented with **Swagger / OpenAPI**, tested with **Jest + Supertest** and shipped as a **Docker** image.
 
-| | |
-|---|---|
-| Team | `691_ITCS258_Group05`|
-| Member | 6788050 Supanat Klayhan  | 6788153 Risa Smuthkochorn | 6788165 Pongsakorn Arayasak |
-| Deployed API | https://api-production-6d2cc168.up.railway.app |
-| Swagger UI | https://api-production-6d2cc168.up.railway.app/api-docs (locally `http://localhost:3000/api-docs`) |
-| OpenAPI file | [`openapi.json`](openapi.json) (also served at `/api-docs-json`) |
-| Health check | `GET /health` |
+|              |                                                                                                    |
+| ------------ | -------------------------------------------------------------------------------------------------- |
+| Team         | `691_ITCS258_Group05`                                                                              |
+| Members      | 6788050 Supanat Klayhan; 6788153 Risa Smuthkochorn; 6788165 Pongsakorn Arayasak                    |
+| Deployed API | https://api-production-6d2cc168.up.railway.app                                                     |
+| Swagger UI   | https://api-production-6d2cc168.up.railway.app/api-docs (locally `http://localhost:3000/api-docs`) |
+| OpenAPI file | [`openapi.json`](openapi.json) (also served at `/api-docs-json`)                                   |
+| Health check | `GET /health`                                                                                      |
 
 ## Contents
 
@@ -64,24 +64,24 @@ Business rules (date validation, status transitions) are small pure functions so
 
 Roles stored in the database: **USER** and **ADMIN** (FR-5). A **guest** is simply someone without a token, so it is not a database role.
 
-| Capability | Guest | User | Admin |
-|---|:-:|:-:|:-:|
-| Register, log in | ✅ | – | – |
-| List rooms, room details (with image), search available rooms, health | ✅ | ✅ | ✅ |
-| Own profile (view / update), log out | ❌ | ✅ | ✅ |
-| Create booking, list / view / cancel **own** bookings | ❌ | ✅ | ✅ |
-| Own notifications | ❌ | ✅ | ✅ |
-| Create / edit / delete / enable / disable rooms, upload room image, list inactive rooms | ❌ | ❌ | ✅ |
-| List and view **all** bookings, approve / mark paid / cancel any booking | ❌ | ❌ | ✅ |
+| Capability                                                                              | Guest | User | Admin |
+| --------------------------------------------------------------------------------------- | :---: | :--: | :---: |
+| Register, log in                                                                        |  ✅   |  –   |   –   |
+| List rooms, room details (with image), search available rooms, health                   |  ✅   |  ✅  |  ✅   |
+| Own profile (view / update), log out                                                    |  ❌   |  ✅  |  ✅   |
+| Create booking, list / view / cancel **own** bookings                                   |  ❌   |  ✅  |  ✅   |
+| Own notifications                                                                       |  ❌   |  ✅  |  ✅   |
+| Create / edit / delete / enable / disable rooms, upload room image, list inactive rooms |  ❌   |  ❌  |  ✅   |
+| List and view **all** bookings, approve / mark paid / cancel any booking                |  ❌   |  ❌  |  ✅   |
 
 No token → `401`. Wrong role → `403`. Another user's booking → `404` (its existence is not revealed).
 
 **Test accounts** (created by the seed script; classroom demo only — change them for anything real):
 
-| Role | Email | Password |
-|---|---|---|
+| Role  | Email               | Password    |
+| ----- | ------------------- | ----------- |
 | ADMIN | `admin@example.com` | `Admin123!` |
-| USER | `user@example.com` | `User1234!` |
+| USER  | `user@example.com`  | `User1234!` |
 
 Anyone who signs up through `POST /auth/register` is always a regular `USER`. The seed also creates five sample rooms.
 
@@ -97,18 +97,18 @@ cp .env.example .env        # Windows PowerShell: Copy-Item .env.example .env
 
 Edit `.env` (never commit it). All configuration comes from environment variables — nothing is hard-coded:
 
-| Variable | Purpose |
-|---|---|
-| `DATABASE_URL` | Database connection string, `mysql://user:password@host:3306/db` (required) |
-| `REDIS_URL` | Redis connection string, `redis://host:6379` (required) |
-| `JWT_SECRET` | Secret used to sign tokens (required; use a long random value) |
-| `PORT` | HTTP port, default `3000` (cloud platforms set it themselves) |
-| `TRUST_PROXY` | `true` behind a reverse proxy, so rate limits use the real client IP |
-| `RUN_SEED` | `true` = run the seed (accounts + sample rooms) every time the container starts |
-| `UPLOAD_DIR` | Where room images are stored, default `./uploads` (`/app/uploads` in Docker) |
-| `DISABLE_CACHE`, `DISABLE_THROTTLE` | `true` only in automated tests |
-| `SEED_*` | Override the default seed accounts |
-| `DB_NAME`, `DB_USER`, `DB_PASSWORD`, `DB_ROOT_PASSWORD` | Used by Docker Compose to create the local database |
+| Variable                                                | Purpose                                                                         |
+| ------------------------------------------------------- | ------------------------------------------------------------------------------- |
+| `DATABASE_URL`                                          | Database connection string, `mysql://user:password@host:3306/db` (required)     |
+| `REDIS_URL`                                             | Redis connection string, `redis://host:6379` (required)                         |
+| `JWT_SECRET`                                            | Secret used to sign tokens (required; use a long random value)                  |
+| `PORT`                                                  | HTTP port, default `3000` (cloud platforms set it themselves)                   |
+| `TRUST_PROXY`                                           | `true` behind a reverse proxy, so rate limits use the real client IP            |
+| `RUN_SEED`                                              | `true` = run the seed (accounts + sample rooms) every time the container starts |
+| `UPLOAD_DIR`                                            | Where room images are stored, default `./uploads` (`/app/uploads` in Docker)    |
+| `DISABLE_CACHE`, `DISABLE_THROTTLE`                     | `true` only in automated tests                                                  |
+| `SEED_*`                                                | Override the default seed accounts                                              |
+| `DB_NAME`, `DB_USER`, `DB_PASSWORD`, `DB_ROOT_PASSWORD` | Used by Docker Compose to create the local database                             |
 
 The app refuses to start if `DATABASE_URL`, `REDIS_URL` or `JWT_SECRET` is missing.
 
@@ -158,11 +158,11 @@ On start the container runs `prisma migrate deploy`, then (if `RUN_SEED=true`) t
 
 Compose files (`compose.yml` is the base; add one overlay):
 
-| Files | Use |
-|---|---|
-| `compose.yml` | App + MariaDB 11.4 + Redis 7, **publishes no ports** |
-| `+ compose.local.yml` | Local development: ports on `127.0.0.1` only (3000, 3307, 6379) |
-| `+ compose.production.yml + compose.direct.yml` | A single server: restart policies and the API on port 80 |
+| Files                                           | Use                                                             |
+| ----------------------------------------------- | --------------------------------------------------------------- |
+| `compose.yml`                                   | App + MariaDB 11.4 + Redis 7, **publishes no ports**            |
+| `+ compose.local.yml`                           | Local development: ports on `127.0.0.1` only (3000, 3307, 6379) |
+| `+ compose.production.yml + compose.direct.yml` | A single server: restart policies and the API on port 80        |
 
 ## 6. API documentation (Swagger)
 
@@ -215,15 +215,15 @@ curl "$BASE/bookings?status=PENDING" -H "Authorization: Bearer $ADMIN"      # ev
 curl -X POST $BASE/auth/logout -H "Authorization: Bearer $TOKEN"
 ```
 
-| Area | Endpoints |
-|---|---|
-| Auth | `POST /auth/register`, `POST /auth/login`, `POST /auth/logout` |
-| Users | `GET /users/me`, `PATCH /users/me` |
-| Rooms (public) | `GET /rooms`, `GET /rooms/:id`, `GET /rooms/search` |
-| Rooms (admin) | `POST /rooms`, `PUT /rooms/:id`, `DELETE /rooms/:id`, `PATCH /rooms/:id/disable`, `PATCH /rooms/:id/enable`, `POST /rooms/:id/image`, `GET /rooms/admin/all` |
-| Bookings | `POST /bookings`, `GET /bookings`, `GET /bookings/:id`, `PATCH /bookings/:id/cancel`, `PATCH /bookings/:id/status` (admin) |
-| Notifications | `GET /notifications`, `PATCH /notifications/:id/read` |
-| Operations | `GET /health` |
+| Area           | Endpoints                                                                                                                                                    |
+| -------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Auth           | `POST /auth/register`, `POST /auth/login`, `POST /auth/logout`                                                                                               |
+| Users          | `GET /users/me`, `PATCH /users/me`                                                                                                                           |
+| Rooms (public) | `GET /rooms`, `GET /rooms/:id`, `GET /rooms/search`                                                                                                          |
+| Rooms (admin)  | `POST /rooms`, `PUT /rooms/:id`, `DELETE /rooms/:id`, `PATCH /rooms/:id/disable`, `PATCH /rooms/:id/enable`, `POST /rooms/:id/image`, `GET /rooms/admin/all` |
+| Bookings       | `POST /bookings`, `GET /bookings`, `GET /bookings/:id`, `PATCH /bookings/:id/cancel`, `PATCH /bookings/:id/status` (admin)                                   |
+| Notifications  | `GET /notifications`, `PATCH /notifications/:id/read`                                                                                                        |
+| Operations     | `GET /health`                                                                                                                                                |
 
 Room images: `POST /rooms/:id/image` (form field `file`, JPEG / PNG / WebP, max 2 MB). The returned `image_url` (for example `/uploads/rooms/<id>.png`) is part of `GET /rooms/:id` and the file is served from that path.
 
@@ -239,8 +239,14 @@ Room images: `POST /rooms/:id/image` (form field `file`, JPEG / PNG / WebP, max 
 Every error has the same shape and a fitting HTTP status:
 
 ```json
-{ "success": false, "statusCode": 400, "message": "Validation failed",
-  "errors": ["capacity must be an integer number"], "path": "/rooms", "timestamp": "2026-11-19T10:00:00.000Z" }
+{
+  "success": false,
+  "statusCode": 400,
+  "message": "Validation failed",
+  "errors": ["capacity must be an integer number"],
+  "path": "/rooms",
+  "timestamp": "2026-11-19T10:00:00.000Z"
+}
 ```
 
 `400` invalid input (every problem is listed in `errors`, unknown fields are rejected) · `401` missing/invalid/revoked token · `403` wrong role · `404` not found · `409` conflict (overlap, duplicate e-mail, illegal status change) · `413` image too large · `429` rate limit · `503` database unavailable.
@@ -249,24 +255,24 @@ Every error has the same shape and a fitting HTTP status:
 
 ### Caching (Redis)
 
-| | |
-|---|---|
-| **Where** | `GET /rooms` (every page/filter combination) and `GET /rooms/:id` — `src/rooms/rooms.service.ts` (`findPublic`, `findPublicOne`) |
-| **Why** | Hotel rooms change rarely but are read by every visitor, so these are the most frequent, most repeatable reads. Caching removes most of the database load for them. |
-| **Freshness** | Entries live 5 minutes **and** are invalidated on every room change (create, edit, delete, enable/disable, image upload): each entry key contains a "version" stamp, and any write stores a new version, so all old pages become unreachable immediately. A user never sees a room list older than the last admin change. |
-| **What is not cached** | Room **search** and **bookings**: availability changes with every booking, so a cached answer could show a room that is already taken. |
-| **Failure mode** | If Redis is down the API reads from the database instead (slower, not broken). |
+|                        |                                                                                                                                                                                                                                                                                                                           |
+| ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Where**              | `GET /rooms` (every page/filter combination) and `GET /rooms/:id` — `src/rooms/rooms.service.ts` (`findPublic`, `findPublicOne`)                                                                                                                                                                                          |
+| **Why**                | Hotel rooms change rarely but are read by every visitor, so these are the most frequent, most repeatable reads. Caching removes most of the database load for them.                                                                                                                                                       |
+| **Freshness**          | Entries live 5 minutes **and** are invalidated on every room change (create, edit, delete, enable/disable, image upload): each entry key contains a "version" stamp, and any write stores a new version, so all old pages become unreachable immediately. A user never sees a room list older than the last admin change. |
+| **What is not cached** | Room **search** and **bookings**: availability changes with every booking, so a cached answer could show a room that is already taken.                                                                                                                                                                                    |
+| **Failure mode**       | If Redis is down the API reads from the database instead (slower, not broken).                                                                                                                                                                                                                                            |
 
 Redis is also used for the logout deny list (a logged-out token id is stored until the token would expire anyway).
 
 ### Rate limiting (`@nestjs/throttler`)
 
-| Endpoint | Limit |
-|---|---|
-| All endpoints (default) | 100 requests / minute / client |
+| Endpoint                                  | Limit                                                              |
+| ----------------------------------------- | ------------------------------------------------------------------ |
+| All endpoints (default)                   | 100 requests / minute / client                                     |
 | `POST /auth/login`, `POST /auth/register` | 5 / minute — makes password guessing and mass sign-ups impractical |
-| `POST /bookings` | 10 / minute — stops a client from flooding the booking transaction |
-| `GET /health` | not limited (monitoring polls it) |
+| `POST /bookings`                          | 10 / minute — stops a client from flooding the booking transaction |
+| `GET /health`                             | not limited (monitoring polls it)                                  |
 
 Exceeding a limit returns `429`. **How it helps stability:** a single abusive or buggy client can no longer use up database connections or CPU needed by everyone else, and brute-force attempts on the login are slowed down. Counters are kept in memory per instance (see limitations).
 
@@ -289,11 +295,11 @@ Exceeding a limit returns `429`. **How it helps stability:** a single abusive or
 
 ### 11.1 Strategy
 
-| Level | What | Where | Database |
-|---|---|---|---|
-| **Unit** | Business rules and services in isolation (Prisma and Redis replaced by mocks) | `src/**/*.spec.ts` | none |
+| Level           | What                                                                                                                                                                               | Where                                                                                    | Database           |
+| --------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------- | ------------------ |
+| **Unit**        | Business rules and services in isolation (Prisma and Redis replaced by mocks)                                                                                                      | `src/**/*.spec.ts`                                                                       | none               |
 | **Integration** | HTTP layer with real validation pipe and guards bypassed, service mocked (`rooms.controller.integration.spec.ts`); plus **API tests of whole endpoints against the real database** | `src/rooms/*.integration.spec.ts`, `test/rooms.e2e-spec.ts`, `test/bookings.e2e-spec.ts` | real MySQL/MariaDB |
-| **End-to-end** | A complete customer journey through the HTTP API with the database state checked after each change | `test/auth-flow.e2e-spec.ts` | real MySQL/MariaDB |
+| **End-to-end**  | A complete customer journey through the HTTP API with the database state checked after each change                                                                                 | `test/auth-flow.e2e-spec.ts`                                                             | real MySQL/MariaDB |
 
 The e2e suites run the real `AppModule` (real validation, guards, filters, Prisma and the real database); only Redis is replaced by an in-memory stand-in so the tests need no Redis. Rate limiting is switched off for them (`DISABLE_THROTTLE`). **Every suite removes the users, rooms, bookings and notifications it created** (`afterAll`).
 
@@ -314,77 +320,75 @@ npm run test:e2e    # API/end-to-end tests against the database
 
 **Unit tests — 64 tests in 8 suites (`npm test`)**
 
-| Suite | Cases (what is asserted) |
-|---|---|
-| `booking-status.spec.ts` (5) | Admin can walk PENDING→APPROVED→PAID; PENDING/APPROVED can be cancelled; PAID and CANCELLED never change; no skipping steps; users can only cancel |
-| `stay-range.spec.ts` (4) | Valid stay returns both dates; invalid date strings → 400; `check_in` ≥ `check_out` → 400 (FR-19); `check_in` in the past → 400 |
-| `bookings.service.spec.ts` (10) | Room is locked, booking + notification saved together; overlap → 409 and nothing written (FR-20); missing/inactive room → 404; invalid dates rejected before the database; owner can cancel + notification (FR-31); someone else's booking → 404; user cannot approve; admin can approve without notification; cancelled booking cannot change; users only list their own bookings |
-| `auth.service.spec.ts` (4) | Token for correct password with role/email in payload; wrong password and unknown e-mail give the same error; logout stores the token id with the right lifetime; expired token is not stored |
-| `users.service.spec.ts` (6) | Registration creates a USER with a bcrypt hash and no password in the result (NFR-1, NFR-4); duplicate e-mail → 409; new password needs the current one; wrong current password → 401; name update returns no password; empty update rejected |
-| `rooms.service.spec.ts` (19) | Create/read/update/delete incl. not-found and database-error paths; pagination, filters and limit clamping; public list is active-only and served from cache; any room write makes cached pages stale; inactive room is a 404 for the public; works when Redis fails; search query excludes overlapping non-cancelled bookings and honours capacity |
-| `rooms.controller.integration.spec.ts` (12) | Real HTTP requests to the controller with a mocked service: status codes, query parsing, validation (400), 404 mapping for create/list/get/update/delete |
-| `response-envelope.interceptor.spec.ts` (4) | Plain objects, paginated lists, empty results and look-alike objects are wrapped correctly (FR-34) |
+| Suite                                       | Cases (what is asserted)                                                                                                                                                                                                                                                                                                                                                           |
+| ------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `booking-status.spec.ts` (5)                | Admin can walk PENDING→APPROVED→PAID; PENDING/APPROVED can be cancelled; PAID and CANCELLED never change; no skipping steps; users can only cancel                                                                                                                                                                                                                                 |
+| `stay-range.spec.ts` (4)                    | Valid stay returns both dates; invalid date strings → 400; `check_in` ≥ `check_out` → 400 (FR-19); `check_in` in the past → 400                                                                                                                                                                                                                                                    |
+| `bookings.service.spec.ts` (10)             | Room is locked, booking + notification saved together; overlap → 409 and nothing written (FR-20); missing/inactive room → 404; invalid dates rejected before the database; owner can cancel + notification (FR-31); someone else's booking → 404; user cannot approve; admin can approve without notification; cancelled booking cannot change; users only list their own bookings |
+| `auth.service.spec.ts` (4)                  | Token for correct password with role/email in payload; wrong password and unknown e-mail give the same error; logout stores the token id with the right lifetime; expired token is not stored                                                                                                                                                                                      |
+| `users.service.spec.ts` (6)                 | Registration creates a USER with a bcrypt hash and no password in the result (NFR-1, NFR-4); duplicate e-mail → 409; new password needs the current one; wrong current password → 401; name update returns no password; empty update rejected                                                                                                                                      |
+| `rooms.service.spec.ts` (19)                | Create/read/update/delete incl. not-found and database-error paths; pagination, filters and limit clamping; public list is active-only and served from cache; any room write makes cached pages stale; inactive room is a 404 for the public; works when Redis fails; search query excludes overlapping non-cancelled bookings and honours capacity                                |
+| `rooms.controller.integration.spec.ts` (12) | Real HTTP requests to the controller with a mocked service: status codes, query parsing, validation (400), 404 mapping for create/list/get/update/delete                                                                                                                                                                                                                           |
+| `response-envelope.interceptor.spec.ts` (4) | Plain objects, paginated lists, empty results and look-alike objects are wrapped correctly (FR-34)                                                                                                                                                                                                                                                                                 |
 
 **API and end-to-end tests — 30 tests in 3 suites (`npm run test:e2e`)**
 
-| Suite | Cases |
-|---|---|
-| `rooms.e2e-spec.ts` (9) — room CRUD as admin | Create (201, envelope); create without token → 401; list contains the room; deactivated room hidden from public list/details but visible to the admin list; get by id incl. `image_url` (FR-16); update (200); update unknown room → 404; delete (200); deleted room → 404 |
+| Suite                                                     | Cases                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
+| --------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `rooms.e2e-spec.ts` (9) — room CRUD as admin              | Create (201, envelope); create without token → 401; list contains the room; deactivated room hidden from public list/details but visible to the admin list; get by id incl. `image_url` (FR-16); update (200); update unknown room → 404; delete (200); deleted room → 404                                                                                                                                                                                                                                                              |
 | `bookings.e2e-spec.ts` (12) — bookings, conflicts, search | Booking requires login (401); PENDING booking created (201); `BOOKING_CREATED` notification stored; overlapping booking → 409; back-to-back stay allowed; invalid dates → 400; unknown room → 404; **5 simultaneous identical requests → exactly one 201 and four 409, one row in the database**; search hides a booked room and shows it for free dates; user sees only own bookings and gets 404 for another's; user cannot change status (403) but admin can; cancel frees the room, stores `BOOKING_CANCELLED`, second cancel → 409 |
-| `auth-flow.e2e-spec.ts` (9) — customer journey | Sign-up (201, role USER, no password in response, bcrypt hash in database); duplicate e-mail → 409, invalid input → 400, `role` in the body rejected; login right/wrong password; view and update profile (database checked), password change needs current password; search finds the room; booking stored as PENDING with notification; search no longer lists the room; cancel changes status, adds notification and makes the room searchable again; logout revokes the token (next call → 401) |
+| `auth-flow.e2e-spec.ts` (9) — customer journey            | Sign-up (201, role USER, no password in response, bcrypt hash in database); duplicate e-mail → 409, invalid input → 400, `role` in the body rejected; login right/wrong password; view and update profile (database checked), password change needs current password; search finds the room; booking stored as PENDING with notification; search no longer lists the room; cancel changes status, adds notification and makes the room searchable again; logout revokes the token (next call → 401)                                     |
 
 ### 11.4 Results
 
-| Command | Result |
-|---|---|
-| `npm test` | **8 suites passed, 64 tests passed** |
+| Command            | Result                               |
+| ------------------ | ------------------------------------ |
+| `npm test`         | **8 suites passed, 64 tests passed** |
 | `npm run test:e2e` | **3 suites passed, 30 tests passed** |
 
 Last run: 19/11/2026 — Node 24, MariaDB 11.4 (Docker Compose). Both commands exit with code 0 and print no failures.
 
 ## 12. Deployment
 
-**Target: Railway** (container platform; app, MySQL and Redis as three services in one project). Deploy source: a personal GitHub repository (fork) of the project. The same Docker image also runs on an Ubuntu server (section 12.2).
+**Target: Railway** (container platform; app, MariaDB and Redis as three services in one project). Deploy source: the personal fork `SupanutKlayhan/back-end-project` (branch `main`), kept in sync with the team repository. The live server stays online until 30 November 2026. The same Docker image also runs on an Ubuntu server (section 12.2).
 
 ```mermaid
 flowchart LR
     U[Users / graders] -->|HTTPS| E[Railway edge + public domain]
     E --> A[API service<br/>Docker image from Dockerfile]
-    A -->|private network<br/>DATABASE_URL| M[(MySQL service)]
+    A -->|private network<br/>DATABASE_URL| M[(MariaDB 11.4 service<br/>volume /var/lib/mysql)]
     A -->|private network<br/>REDIS_URL| R[(Redis service)]
     A --- V[/Volume /app/uploads/]
-    G[GitHub repo] -->|push triggers build| A
+    G[GitHub fork] -->|push / Sync fork triggers build| A
 ```
 
 ### 12.1 Railway, step by step
 
 1. **Push the code** to your GitHub repository (the folder with the `Dockerfile` is `nest-prisma-lab/`; the folder `nest-prisma-lab/prisma/migrations/` must be committed).
-2. **New project:** railway.com → *New Project* → *Deploy from GitHub repo* → pick the repository (allow Railway's GitHub app to access it). This creates the API service.
+2. **New project:** railway.com → _New Project_ → _Deploy from GitHub repo_ → pick the repository (allow Railway's GitHub app to access it). This creates the API service.
 3. In the API service → **Settings → Source → Root Directory** = `/nest-prisma-lab`. Railway builds the `Dockerfile` found there.
-4. In the same project click **+ New → Database → Add MySQL**, then **+ New → Database → Add Redis**.
-5. API service → **Variables** (use the _Raw editor_ and adjust the service names `MySQL` / `Redis` if yours differ):
+4. In the same project click **+ New → Docker Image** → `mariadb:11.4` (the same version as `compose.yml`, so local and production behave identically). Rename the service to `MariaDB`, add a volume at `/var/lib/mysql`, and set its variables `MARIADB_DATABASE=hotel_booking`, ``MARIADB_USER=hotel`, `MARIADB_PASSWORD`, `MARIADB_ROOT_PASSWORD` (random 64-character hex values). Then **+ New → Database → Add Redis**.
+5. API service → **Variables** (use the _Raw editor_; adjust the service names `MariaDB` / `Redis` if yours differ):
    ```
-   DATABASE_URL=${{MySQL.MYSQL_URL}}
-   REDIS_URL=${{Redis.REDIS_URL}}
-   JWT_SECRET=<long random string>
-   TRUST_PROXY=true
-   RUN_SEED=true
+    DATABASE_URL=mysql://hotel:<same value as MARIADB_PASSWORD>@mariadb.railway.internal:3306/hotel_booking
+    REDIS_URL=${{Redis.REDIS_URL}}
+    JWT_SECRET=<long random string>
+    TRUST_PROXY=true
+    RUN_SEED=true
    ```
-   Generate the secret with `node -e "console.log(require('crypto').randomBytes(48).toString('hex'))"`. Railway sets `PORT` itself; the app listens on it.
-6. **Keep uploaded images across deploys:** API service → **Settings → Volumes** (or `Ctrl/Cmd+K` → *Volume*) → mount path `/app/uploads`, and add the variable `RAILWAY_RUN_UID=0` (the container otherwise runs as an unprivileged user that cannot write to the volume).
-7. API service → **Settings → Deploy → Healthcheck Path** = `/health`. Railway waits for a `2xx` from it before switching traffic (default timeout 300 s).
-8. API service → **Settings → Networking → Generate Domain**. Open `https://<domain>/health` and `https://<domain>/api-docs`.
-9. Every `git push` to the connected branch builds and deploys automatically. The container applies new migrations on start, then seeds (`RUN_SEED=true`), then starts the API. The logs are in the service's **Deployments → View logs**.
+
+Generate the secret with `node -e "console.log(require('crypto').randomBytes(48).toString('hex'))"`. Railway sets `PORT` itself; the app listens on it. 6. **Keep uploaded images across deploys:** API service → **Settings → Volumes** (or `Ctrl/Cmd+K` → _Volume_) → mount path `/app/uploads`, and add the variable `RAILWAY_RUN_UID=0` (the container otherwise runs as an unprivileged user that cannot write to the volume). 7. API service → **Settings → Deploy → Healthcheck Path** = `/health`. Railway waits for a `2xx` from it before switching traffic (default timeout 300 s). 8. API service → **Settings → Networking → Generate Domain**. Open `https://<domain>/health` and `https://<domain>/api-docs`. 9. Every push to the fork's `main` builds and deploys automatically. After a change is merged into the team repository, click **Sync fork** on the fork to deploy it. The container applies new migrations on start, then seeds (`RUN_SEED=true`), then starts the API. The logs are in the service's **Deployments → View logs**.
 
 **Verify the deployment:**
+
 ```bash
 curl https://<domain>/health                                  # {"status":"ok","db":"up","redis":"up",...}
 curl -X POST https://<domain>/auth/login -H "Content-Type: application/json" \
-     -d '{"email":"admin@example.com","password":"Admin123!"}'  # token
+  -d '{"email":"admin@example.com","password":"Admin123!"}'  # token
 curl "https://<domain>/rooms"                                 # the five sample rooms
 ```
 
-Environment: Railway container platform; MySQL and Redis are managed by Railway inside a private network (the database is **not** reachable from the internet); HTTPS terminated by Railway.
+Environment: Railway container platform; MariaDB (Docker image with a persistent volume) and Redis (managed by Railway) run inside a private network (the database is **not** reachable from the internet); HTTPS terminated by Railway.
 
 ### 12.2 Alternative: your own Ubuntu server (Docker Compose, deploy key)
 
@@ -419,5 +423,14 @@ See [section 2](#2-roles-access-rules-and-test-accounts) (`admin@example.com` / 
 - The load behaviour was verified with concurrent-request tests only, not with a load-testing tool.
 
 ## 14. AI declaration
+
+AI tools were used as assistants. All design decisions, final code and this document were reviewed by the team.
+
+| Tool               | Used for                                                                                                                                                                                            |
+| ------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Claude (Anthropic) | Code review and audit of the finished project against the requirements; comparing our implementation with the course lectures; help writing and fixing tests; help writing and checking this README |
+| Gemini (Google)    | Step-by-step help with the Railway deployment (the team member ran every command and set every variable)                                                                                            |
+
+How we used it: AI output was treated as a suggestion. A team member read each suggested change, ran `npm run build`, `npm test` and `npm run test:e2e`, and only committed what passed. Secrets (JWT secret, database passwords) were never shared with an AI tool.
 
 Have to fill
